@@ -1,10 +1,10 @@
 ---
 import Layout from '~/layouts/Layout.astro';
 import Header from '~/components/widgets/Header.astro';
-import Footer from '~/components/widgets/Footer.astro';
-import Announcement from '~/components/widgets/Announcement.astro';
+import UtilityBar from '~/components/dco/UtilityBar.astro';
+import SiteFooter from '~/components/dco/SiteFooter.astro';
 
-import { headerData, footerData } from '~/navigation';
+import { headerData } from '~/navigation';
 
 import type { MetaData } from '~/types';
 
@@ -26,10 +26,10 @@ const { metadata } = Astro.props;
     goes missing on that page.
   */
   }
-  {Astro.slots.has('announcement') ? <slot name="announcement" /> : <Announcement />}
-  {Astro.slots.has('header') ? <slot name="header" /> : <Header {...headerData} isSticky showRssFeed showToggleTheme />}
+  {Astro.slots.has('announcement') ? <slot name="announcement" /> : <UtilityBar />}
+  {Astro.slots.has('header') ? <slot name="header" /> : <Header {...headerData} isSticky position="right" />}
   <main class="flex-1">
     <slot />
   </main>
-  {Astro.slots.has('footer') ? <slot name="footer" /> : <Footer {...footerData} />}
+  {Astro.slots.has('footer') ? <slot name="footer" /> : <SiteFooter />}
 </Layout>

@@ -1,0 +1,91 @@
+---
+// Day-by-day filter for a multi-day conference agenda (after MBARI's event
+// slider). Renders every day as its own section with a heading; JavaScript
+// adds a row of toggle buttons that show one day at a time. Without JS, all
+// days stay visible.
+import EventCard from '~/components/dco/EventCard.astro';
+import { groupByDay, shortDay, weekdayLong, fullDate, type DcoEvent } from '~/utils/events';
+
+export interface Props {
+  events: DcoEvent[];
+  /** Unique id prefix when several filters share a page. */
+  id: string;
+  label: string;
+}
+
+const { events, id, label } = Astro.props;
+const days = [...groupByDay(events).entries()];
+---
+
+<day-filter class="block">
+  <div class="mb-6 hidden flex-wrap gap-2" role="group" aria-label={`Filter ${label} by day`} data-day-buttons>
+    <button type="button" class="day-btn" data-day="all" aria-pressed="true">All days</button>
+    {
+      days.map(([key, list]) => (
+        <button type="button" class="day-btn" data-day={key} aria-pressed="false">
+          {shortDay(list[0].data.date)}
+        </button>
+      ))
+    }
+  </div>
+
+  <p class="sr-only" aria-live="polite" data-day-status></p>
+
+  <div class="space-y-10">
+    {
+      days.map(([key, list]) => (
+        <section data-day-panel={key} aria-labelledby={`${id}-${key}`}>
+          <h3 id={`${id}-${key}`} class="eyebrow-bar mb-4 text-heading">
+            {weekdayLong(list[0].data.date)} <span class="text-muted">{fullDate(list[0].data.date)}</span>
+          </h3>
+          <ul class="grid gap-4">
+            {list.map((event) => (
+              <li>
+                <EventCard event={event} showDate={false} headingLevel="h4" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</day-filter>
+
+<style>
+  @reference '../../assets/styles/tailwind.css';
+
+  .day-btn {
+    @apply rounded-[4px] border border-line bg-white px-4 py-2 text-xs font-semibold tracking-[0.08em] text-default uppercase transition-colors hover:border-primary hover:text-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  }
+  .day-btn[aria-pressed='true'] {
+    @apply border-abyss bg-abyss text-white hover:text-white;
+  }
+</style>
+
+<script>
+  class DayFilter extends HTMLElement {
+    connectedCallback() {
+      const group = this.querySelector<HTMLElement>('[data-day-buttons]');
+      const buttons = [...this.querySelectorAll<HTMLButtonElement>('[data-day]')];
+      const panels = [...this.querySelectorAll<HTMLElement>('[data-day-panel]')];
+      const status = this.querySelector<HTMLElement>('[data-day-status]');
+      if (!group || panels.length < 2) return;
+
+      group.classList.remove('hidden');
+      group.classList.add('flex');
+
+      const show = (day: string) => {
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.day === day)));
+        panels.forEach((p) => (p.hidden = day !== 'all' && p.dataset.dayPanel !== day));
+        if (status) {
+          const visible = panels.filter((p) => !p.hidden).reduce((n, p) => n + p.querySelectorAll('article').length, 0);
+          status.textContent = `Showing ${visible} event${visible === 1 ? '' : 's'}`;
+        }
+      };
+
+      buttons.forEach((b) => b.addEventListener('click', () => show(b.dataset.day ?? 'all')));
+    }
+  }
+
+  if (!customElements.get('day-filter')) customElements.define('day-filter', DayFilter);
+</script>

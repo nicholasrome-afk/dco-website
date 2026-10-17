@@ -1,48 +1,47 @@
 ---
-// Font family is provided by Astro's native Fonts API (see `fonts` in
-// astro.config.ts and <Font /> in Layout.astro), exposed as `--font-inter`.
-// To switch typefaces, change the `fonts` entry and repoint `--aw-font-*` below.
+// Font families are provided by Astro's native Fonts API (see `fonts` in
+// astro.config.ts and <Font /> in Layout.astro). Colors follow the DCO-OO
+// palette documented in CLAUDE.md; every text/background pair meets WCAG AA.
+// The site is light-only (`ui.theme: light:only`), so `.dark` mirrors `:root`.
 ---
 
 <style is:inline>
-  :root {
-    --aw-font-sans: var(--font-inter);
-    --aw-font-serif: var(--font-inter);
-    --aw-font-heading: var(--font-inter);
-
-    --aw-color-primary: rgb(1 97 239);
-    --aw-color-secondary: rgb(1 84 207);
-    --aw-color-accent: rgb(109 40 217);
-
-    --aw-color-text-heading: rgb(0 0 0);
-    --aw-color-text-default: rgb(16 16 16);
-    --aw-color-text-muted: rgb(16 16 16 / 66%);
-    --aw-color-bg-page: rgb(255 255 255);
-
-    --aw-color-bg-page-dark: rgb(8 9 10);
-
-    ::selection {
-      background-color: lavender;
-    }
-  }
-
+  :root,
   .dark {
     --aw-font-sans: var(--font-inter);
     --aw-font-serif: var(--font-inter);
-    --aw-font-heading: var(--font-inter);
+    --aw-font-heading: var(--font-jakarta);
 
-    --aw-color-primary: rgb(1 97 239);
-    --aw-color-secondary: rgb(1 84 207);
-    --aw-color-accent: rgb(109 40 217);
+    /* Ocean teal: button fills (white text 4.77:1) and large UI. */
+    --aw-color-primary: #008080;
+    /* Hover state for teal buttons. */
+    --aw-color-secondary: #006666;
+    /* Bright teal: only on navy (navy text on it, or it as text on navy: 5.9:1). */
+    --aw-color-accent: #00a896;
+    --aw-color-accent-hover: #3cc7b4;
+    /* Darker teal for small text links and badge labels on white or ice gray. */
+    --aw-color-link: #006d6d;
 
-    --aw-color-text-heading: rgb(247, 248, 248);
-    --aw-color-text-default: rgb(229 236 246);
-    --aw-color-text-muted: rgb(229 236 246 / 66%);
-    --aw-color-bg-page: rgb(8 9 10);
+    --aw-color-abyss: #0a192f;
+    --aw-color-deep: #13294b;
+    --aw-color-mist: #f4f7fa;
+    --aw-color-line: #d8e0e6;
+
+    /* Text on navy */
+    --aw-color-on-dark: #e8eef3;
+    --aw-color-on-dark-muted: #afc0d2;
+    --aw-color-on-dark-link: #00a896;
+
+    --aw-color-text-heading: #0a192f;
+    --aw-color-text-default: #12202d;
+    --aw-color-text-muted: #4a5c6c;
+    --aw-color-bg-page: #ffffff;
+
+    --aw-color-bg-page-dark: #0a192f;
 
     ::selection {
-      background-color: black;
-      color: snow;
+      background-color: #00a896;
+      color: #0a192f;
     }
   }
 </style>

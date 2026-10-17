@@ -1,559 +1,356 @@
 ---
-import Layout from '~/layouts/PageLayout.astro';
+import { Icon } from 'astro-icon/components';
+import { getCollection } from 'astro:content';
 
-import Hero from '~/components/widgets/Hero.astro';
-import Note from '~/components/widgets/Note.astro';
-import Features from '~/components/widgets/Features.astro';
-import QuickStart from '~/components/widgets/QuickStart.astro';
-import Features2 from '~/components/widgets/Features2.astro';
-import Timeline from '~/components/widgets/Timeline.astro';
-import Steps from '~/components/widgets/Steps.astro';
-import Content from '~/components/widgets/Content.astro';
-import BlogHighlightedPosts from '~/components/widgets/BlogHighlightedPosts.astro';
-import FAQs from '~/components/widgets/FAQs.astro';
-import Stats from '~/components/widgets/Stats.astro';
-import CallToAction from '~/components/widgets/CallToAction.astro';
-import SocialProof from '~/components/widgets/SocialProof.astro';
+import Layout from '~/layouts/PageLayout.astro';
+import Image from '~/components/common/Image.astro';
 import StructuredData from '~/components/common/StructuredData.astro';
-import { SITE, METADATA, I18N } from 'astrowind:config';
-import favIconSvg from '~/assets/favicons/favicon.svg';
+import SectionHead from '~/components/dco/SectionHead.astro';
+import EventCard from '~/components/dco/EventCard.astro';
+import NetworkCard from '~/components/dco/NetworkCard.astro';
+import PhotoCredit from '~/components/dco/PhotoCredit.astro';
+
+import { SITE, I18N } from 'astrowind:config';
+import { ORG } from '~/config/org';
+import { findLatestPosts } from '~/utils/blog';
+import { getPermalink } from '~/utils/permalinks';
+import { getEvents, splitByTime, fullDate, timeRange } from '~/utils/events';
+
+import { IMAGES } from '~/config/images';
+import networkMap from '~/data/network-map.json';
 
 const metadata = {
-  title: 'AstroWind — Free template for creating websites with Astro + Tailwind CSS',
+  title: `${ORG.name} (${ORG.shortName})`,
   ignoreTitleTemplate: true,
 };
 
-// Structured data for the site and its publisher, built only from
-// `src/config.yaml` (`site.name`, `site.site`, `metadata.twitter.handle`), so
-// it is correct for any site made with the template. Blog posts add
-// BlogPosting on their own; the FAQs widget adds FAQPage.
-const organizationId = `${SITE?.site}/#organization`;
+// --- Content ----------------------------------------------------------------
+
+const pillars = [
+  { word: 'Coordinate', text: 'Connecting the Decade Actions that address Challenge 7.' },
+  { word: 'Observe', text: 'Identifying and filling capacity gaps across every ocean basin.' },
+  { word: 'Deliver', text: 'Connecting data and its users across silos, for sustainable growth.' },
+];
+
+const themes = [
+  {
+    icon: 'tabler:temperature',
+    title: 'Ocean–climate nexus',
+    text: 'Sustained observations that underpin climate monitoring, prediction and adaptation.',
+  },
+  {
+    icon: 'tabler:fish',
+    title: 'Ecosystems and marine pollution',
+    text: 'Fit-for-purpose data to manage marine ecosystems and track pollution.',
+  },
+  {
+    icon: 'tabler:ship',
+    title: 'Blue food and ocean economy',
+    text: 'Information that supports food from the sea and a sustainable ocean economy.',
+  },
+  {
+    icon: 'tabler:world',
+    title: 'GOOS beyond 2030',
+    text: 'Lifting observing capacity and leaving a practical legacy for GOOS after the Decade.',
+  },
+];
+
+const label = (n: { data: { acronym?: string; name: string } }) => n.data.acronym ?? n.data.name;
+const network = (await getCollection('network')).sort((a, b) => label(a).localeCompare(label(b)));
+const partners = network.filter((n) => n.data.type === 'partner');
+const programmes = network.filter((n) => n.data.type === 'programme');
+
+const events = await getEvents();
+const { upcoming, past } = splitByTime(events);
+const homeEvents = (upcoming.length ? upcoming : past).slice(0, 3);
+const spotlight = events.find((e) => e.data.featured);
+
+// Live-data callout under the hero, from the same OceanOPS snapshot as the map.
+const mapDate = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+}).format(new Date(networkMap.retrieved));
+const mapNetworks = networkMap.networks.filter((n) => n.name !== 'Other').slice(0, 3);
+
+const posts = await findLatestPosts({ count: 3 });
+const postDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
+// Structured data built only from config.yaml and src/config/org.ts.
 const structuredData = [
   {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': `${SITE?.site}/#website`,
-    name: SITE?.name,
+    name: ORG.name,
     url: SITE?.site,
     inLanguage: I18N?.language,
-    publisher: { '@id': organizationId },
+    publisher: { '@id': `${SITE?.site}/#organization` },
   },
   {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    '@id': organizationId,
-    name: SITE?.name,
+    '@id': `${SITE?.site}/#organization`,
+    name: ORG.name,
+    alternateName: ORG.shortName,
     url: SITE?.site,
-    logo: new URL(favIconSvg.src, SITE?.site).toString(),
-    ...(METADATA?.twitter?.handle ? { sameAs: [`https://x.com/${METADATA.twitter.handle.replace(/^@/, '')}`] } : {}),
   },
 ];
 ---
 
 <Layout metadata={metadata}>
   <StructuredData slot="head" schema={structuredData} />
-  <!-- Hero Widget ******************* -->
 
-  <Hero
-    tagline="Free & open source"
-    actions={[
-      {
-        variant: 'primary',
-        text: 'Get template',
-        href: 'https://github.com/arthelokyo/astrowind',
-        target: '_blank',
-        icon: 'tabler:download',
-      },
-      { text: 'Learn more', href: '#features' },
-    ]}
-    image={{ src: '~/assets/images/hero-image.png', alt: 'AstroWind Hero Image' }}
-  >
-    <Fragment slot="title">
-      Free template for <span class="hidden xl:inline">creating websites with</span>
-      <span class="text-accent dark:text-white"> Astro v7</span> + Tailwind CSS
-    </Fragment>
-
-    <Fragment slot="subtitle">
-      <span class="hidden sm:inline">
-        <span class="font-semibold">AstroWind</span> is a free, customizable and production-ready template for Astro v7 +
-        Tailwind CSS v4.</span
+  <!-- Hero (MBARI-style large left-aligned type over a live map of the global observing system) -->
+  <section class="relative isolate overflow-hidden bg-abyss" aria-labelledby="hero-heading">
+    <Image
+      src={IMAGES.homeHero.src}
+      alt={IMAGES.homeHero.alt}
+      layout="none"
+      loading="eager"
+      fetchpriority="high"
+      widths={[768, 1280, 1920, 2880]}
+      sizes="100vw"
+      class="absolute inset-0 -z-10 h-full w-full object-cover md:object-contain md:object-right"
+    />
+    <div class="absolute inset-0 -z-10 bg-linear-to-r from-abyss/90 via-abyss/55 to-abyss/0" aria-hidden="true"></div>
+    <PhotoCredit image={IMAGES.homeHero} />
+    <div class="mx-auto max-w-7xl px-4 pt-24 pb-20 md:pt-36 md:pb-28 lg:px-6">
+      <p class="eyebrow-bar text-on-dark-muted before:bg-accent">{ORG.name}</p>
+      <h1
+        id="hero-heading"
+        class="mt-5 max-w-4xl text-4xl leading-[1.05] font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
       >
-      <span class="block mb-1 sm:hidden font-bold text-blue-600">AstroWind: Production-ready.</span>
-      Suitable for Startups, Small Business, SaaS websites, Professional Portfolios, Marketing websites, Landing Pages & Blogs.
-    </Fragment>
-  </Hero>
-
-  <!-- SocialProof Widget ************ -->
-
-  <SocialProof
-    id="proof"
-    classes={{ container: '!pb-14 md:!pb-20' }}
-    items={[
-      {
-        value: '#1',
-        label: 'most starred Astro theme',
-        icon: 'tabler:star-filled',
-        color: 'text-amber-400',
-        href: 'https://github.com/arthelokyo/astrowind',
-      },
-      { value: '100', label: 'Lighthouse score', icon: 'tabler:gauge', color: 'text-emerald-500' },
-      { value: 'MIT', label: 'licensed, free to use', icon: 'tabler:license', color: 'text-sky-500' },
-    ]}
-  />
-
-  <!-- QuickStart Widget ************* -->
-
-  <QuickStart
-    id="quick-start"
-    classes={{ icon: 'bg-green-600 dark:bg-green-700' }}
-    tagline="TL;DR"
-    title="One command. That is the whole setup."
-    subtitle="For the people who scroll past the features and ask “how do I run it?”. This is how."
-    commands={['npm create astro@latest -- --template arthelokyo/astrowind']}
-    items={[
-      {
-        title: 'Two minutes, one terminal',
-        description:
-          'Answer the prompts, run <code>npm run dev</code>, open localhost:4321. The demo site is now yours to edit. The only requirement is a current Node.js.',
-        icon: 'tabler:terminal-2',
-      },
-      {
-        title: 'AI-ready out of the box',
-        description:
-          'An <code>AGENTS.md</code> and step-by-step skills tell Claude Code, Cursor or any coding assistant how this template works. Ask it for a page; it knows where things go.',
-        icon: 'tabler:sparkles',
-      },
-      {
-        title: 'Free, MIT licensed, no strings',
-        description:
-          'Use it for client work, side projects or the company site. Star the repo if it saves you an afternoon.',
-        icon: 'tabler:license',
-      },
-    ]}
-  >
-    <Fragment slot="bg">
-      <div
-        class="absolute inset-0 bg-[radial-gradient(60%_55%_at_15%_20%,rgb(129_140_248/0.28),transparent_65%),radial-gradient(50%_50%_at_85%_25%,rgb(244_114_182/0.22),transparent_65%)] dark:bg-[radial-gradient(60%_55%_at_15%_20%,rgb(99_102_241/0.25),transparent_65%),radial-gradient(50%_50%_at_85%_25%,rgb(217_70_239/0.18),transparent_65%)]"
-      >
+        A sustained ocean observing system for every ocean basin.
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg text-on-dark md:text-xl">
+        We connect the Decade Actions addressing {ORG.decade.challenge} so that ocean data is accessible, timely and actionable
+        for all users.
+      </p>
+      <div class="mt-10 flex flex-wrap gap-3">
+        <a href="#about" class="btn-dco-accent">What we do</a>
+        <a href={getPermalink('/events')} class="btn-dco-outline-light">Events</a>
       </div>
-    </Fragment>
-  </QuickStart>
+      <div class="mt-14 max-w-2xl border-t border-white/15 pt-6">
+        <p class="text-on-dark">
+          <span class="font-heading text-3xl font-extrabold text-white">{networkMap.total.toLocaleString('en-GB')}</span
+          >
+          <span class="ml-2">observing platforms reported a position in the 30 days to {mapDate}.</span>
+        </p>
+        <ul class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-on-dark-muted" aria-label="Largest networks">
+          {
+            mapNetworks.map(({ name, count, color }) => (
+              <li class="flex items-center gap-2">
+                <span class="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
+                {name}: {count.toLocaleString('en-GB')}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
 
-  <!-- Features Widget *************** -->
+  <!-- Pillar bar (after Schmidt Ocean's INNOVATE | EXPLORE | SHARE) -->
+  <section class="border-t border-white/10 bg-abyss" aria-label="Our approach">
+    <ul class="mx-auto grid max-w-7xl md:grid-cols-3 lg:px-6">
+      {
+        pillars.map(({ word, text }, i) => (
+          <li
+            class:list={[
+              'px-4 py-8 md:px-8 md:py-10',
+              i > 0 && 'border-t border-white/10 md:border-t-0 md:border-l',
+              i === 0 && 'md:pl-0',
+            ]}
+          >
+            <p class="font-heading text-2xl font-extrabold tracking-[0.08em] text-white uppercase md:text-3xl">
+              {word}
+            </p>
+            <p class="mt-2 text-on-dark-muted">{text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 
-  <Features
-    id="features"
-    tagline="Features"
-    title="What you get with AstroWind"
-    subtitle="One of the most professional and comprehensive templates currently on the market. Most starred & forked Astro theme in 2022, 2023, 2024 and 2025."
-    items={[
-      {
-        title: 'Astro + Tailwind CSS Integration',
-        description:
-          'A seamless integration between two great frameworks that offer high productivity, performance and versatility. Now powered by Tailwind CSS v4.',
-        icon: 'tabler:brand-tailwind',
-      },
-      {
-        title: 'Ready-to-use Components',
-        description:
-          'Widgets made with Tailwind CSS v4 ready to be used in Marketing Websites, SaaS, Blogs, Personal Profiles, Small Business...',
-        icon: 'tabler:components',
-      },
-      {
-        title: 'Best Practices',
-        description:
-          'Creating secure, efficient, and user-friendly websites that deliver exceptional experiences and lasting value.',
-        icon: 'tabler:list-check',
-      },
-      {
-        title: 'Excellent Page Speed',
-        description:
-          'Having a good page speed impacts organic search ranking, improves user experience (UI/UX) and increase conversion rates.',
-        icon: 'tabler:rocket',
-      },
-      {
-        title: 'Search Engine Optimization (SEO)',
-        description:
-          "SEO lies in its ability to enhance a website's visibility, driving organic traffic and enabling it to reach a wider audience.",
-        icon: 'tabler:arrows-right-left',
-      },
-      {
-        title: 'Open to new ideas and contributions',
-        description:
-          'Embracing a culture that is open to new ideas and contributions is integral fostering innovation, collaboration, and a dynamic user experience.',
-        icon: 'tabler:bulb',
-      },
-    ]}
-  />
+  <!-- About: mission + theme cards (after ONC's "What We Deliver") -->
+  <section class="scroll-mt-24 py-16 md:py-24" aria-labelledby="about">
+    <div class="mx-auto grid max-w-7xl gap-12 px-4 lg:grid-cols-12 lg:px-6">
+      <div class="lg:col-span-5">
+        <p class="eyebrow-bar text-muted">What we do</p>
+        <h2 id="about" class="mt-3 scroll-mt-28 text-3xl font-bold tracking-tight text-heading md:text-4xl">
+          Coordinating {ORG.decade.challenge}
+        </h2>
+        <p class="mt-6 text-lg text-default">
+          {ORG.decade.challenge} calls for a sustainable ocean observing system across all ocean basins that delivers accessible,
+          timely and actionable data and information to all users.
+        </p>
+        <p class="mt-4 text-lg text-muted">
+          Hosted by <a class="text-link underline underline-offset-2" href={ORG.host.url}>{ORG.host.name}</a>, DCO-OO
+          connects the many Decade Actions working toward that goal, alongside GOOS and partners, so the coordination
+          lasts beyond 2030.
+        </p>
+      </div>
+      <ul class="grid gap-4 sm:grid-cols-2 lg:col-span-7">
+        {
+          themes.map(({ icon, title, text }) => (
+            <li class="rounded-[4px] border border-line p-6">
+              <Icon name={icon} class="h-8 w-8 text-link" aria-hidden="true" />
+              <h3 class="mt-4 text-lg font-bold text-heading">{title}</h3>
+              <p class="mt-2 text-muted">{text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
 
-  <!-- Content Widget **************** -->
+  <!-- Spotlight tiles (after Schmidt Ocean's split feature cards) -->
+  <section class="bg-mist py-16 md:py-20" aria-label="Spotlight">
+    <div class="mx-auto grid max-w-7xl gap-6 px-4 lg:grid-cols-5 lg:px-6">
+      {
+        spotlight && (
+          <article class="grid overflow-hidden rounded-[4px] bg-abyss text-on-dark sm:grid-cols-5 lg:col-span-3">
+            <div class="relative min-h-56 sm:col-span-2">
+              <Image
+                src={IMAGES.spotlight.src}
+                alt={IMAGES.spotlight.alt}
+                style={`object-position: ${IMAGES.spotlight.position}`}
+                layout="cover"
+                widths={[400, 800]}
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 40vw, 100vw"
+                class="absolute inset-0 h-full w-full object-cover"
+              />
+              <PhotoCredit image={IMAGES.spotlight} class="top-2 right-2 left-2 w-fit" />
+            </div>
+            <div class="flex flex-col p-6 sm:col-span-3 md:p-8">
+              <p class="eyebrow text-accent">Spotlight · {spotlight.data.conference} town hall</p>
+              <h2 class="mt-3 text-2xl leading-tight font-bold text-white">{spotlight.data.title}</h2>
+              <p class="mt-3 text-sm text-on-dark-muted">
+                {spotlight.data.organizers.join(', ')} · {fullDate(spotlight.data.date)} · {timeRange(spotlight.data)} ·{' '}
+                {spotlight.data.location}
+              </p>
+              {spotlight.data.link && (
+                <a href={spotlight.data.link} class="btn-dco-outline-light mt-6 self-start">
+                  View session <Icon name="tabler:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
+                </a>
+              )}
+            </div>
+          </article>
+        )
+      }
+      <article class="flex flex-col rounded-[4px] bg-primary p-6 text-white md:p-8 lg:col-span-2">
+        <p class="eyebrow text-white">Conference programme</p>
+        <h2 class="mt-3 text-2xl leading-tight font-bold">Ocean Sciences Meeting 2026</h2>
+        <p class="mt-3 text-white">
+          Browse the complete OSM'26 scientific programme, including every session from the Challenge 7 community.
+        </p>
+        <a
+          href="https://agu.confex.com/agu/osm26/meetingapp.cgi"
+          class="btn-dco-outline-light mt-6 self-start lg:mt-auto"
+        >
+          Full programme <Icon name="tabler:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
+        </a>
+      </article>
+    </div>
+  </section>
 
-  <Content
-    isReversed
-    tagline="Inside template"
-    title="AstroWind's Blueprint: Fun Meets Functionality!"
-    items={[
-      {
-        title: 'Built on top of Astro v7',
-        description:
-          'Benefiting from the performance and developer-friendly features of this modern static site generator.',
-      },
-      {
-        title: 'Styled using Tailwind CSS v4',
-        description:
-          'Facilitating rapid design and consistent styling with this highly popular utility-first CSS framework.',
-      },
-      {
-        title: 'Cross-browser compatibility',
-        description:
-          'Ensure your website looks and functions consistently across various web browsers, delivering a seamless experience to all users.',
-      },
-    ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-      alt: 'Colorful Image',
-    }}
-  >
-    <Fragment slot="content">
-      <h3 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Building on modern foundations</h3>
-      Gain a competitive advantage by incorporating industry leading practices
-    </Fragment>
+  <!-- Partners and programmes (after ONC's card grid) -->
+  <section class="py-16 md:py-24" aria-labelledby="network">
+    <div class="mx-auto max-w-7xl px-4 lg:px-6">
+      <SectionHead
+        id="network"
+        eyebrow="Our network"
+        title="Partners and programmes"
+        intro={`${partners.length} Decade Implementing Partners and ${programmes.length} Decade Challenge 7 Programmes are building ocean observing capacity across every ocean basin.`}
+        class="scroll-mt-28"
+      />
+      <h3 class="eyebrow mt-12 text-muted">Decade Implementing Partners</h3>
+      <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          partners.map((item) => (
+            <li>
+              <NetworkCard item={item} />
+            </li>
+          ))
+        }
+      </ul>
+      <h3 class="eyebrow mt-12 text-muted">Decade Challenge 7 Programmes</h3>
+      <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          programmes.map((item) => (
+            <li>
+              <NetworkCard item={item} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
 
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-blue-50 dark:bg-transparent"></div>
-    </Fragment>
-  </Content>
+  <!-- Events -->
+  <section class="bg-mist py-16 md:py-24" aria-labelledby="events">
+    <div class="mx-auto max-w-7xl px-4 lg:px-6">
+      <SectionHead
+        id="events"
+        eyebrow="Events"
+        title={upcoming.length ? 'Upcoming events' : 'Recent events'}
+        intro={upcoming.length ? undefined : 'No upcoming events are listed right now. Here are the most recent.'}
+        link={{ text: 'All events', href: getPermalink('/events') }}
+        class="scroll-mt-28"
+      />
+      <ul class="mt-10 grid gap-4">
+        {
+          homeEvents.map((event) => (
+            <li>
+              <EventCard event={event} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
 
-  <!-- Content Widget **************** -->
-
-  <Content
-    isAfterContent
-    items={[
-      {
-        title: 'High level of customization',
-        description: `Tailor the template effortlessly to match your brand's identity and requirements, making your website distinct and saving you time.`,
-      },
-      {
-        title: 'Multiple layout possibilities',
-        description:
-          'Explore various layout options to find the structure that best presents your content, enhancing user engagement and navigation.',
-      },
-      {
-        title: 'Fully responsive design',
-        description:
-          "Ensure your website's optimal performance on various devices and screen sizes, providing a consistent and enjoyable user experience.",
-      },
-      {
-        title: 'Integration of media',
-        description:
-          'Seamlessly incorporate images, videos, and multimedia elements that enhance your content and engage visitors effectively.',
-      },
-    ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1616674282942-2835e62d612e?auto=format&fit=crop&w=1600&q=80',
-      alt: 'Printed website wireframes on a black table',
-    }}
-  >
-    <Fragment slot="content">Ensure your online presence truly represents you.</Fragment>
-
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-blue-50 dark:bg-transparent"></div>
-    </Fragment>
-  </Content>
-
-  <!-- Content Widget **************** -->
-
-  <Content
-    isReversed
-    isAfterContent
-    items={[
-      {
-        title: 'Enhanced user engagement',
-        description:
-          'Captivate your audience with interactive elements, intuitive navigation, and visually appealing layouts, encouraging longer visits.',
-      },
-      {
-        title: 'Continuous improvement',
-        description:
-          'Ensure your website stays aligned with the latest trends and technologies through regular updates and enhancements.',
-      },
-      {
-        title: 'Time and resource efficiency',
-        description:
-          'Skip the time-consuming process of building a website from scratch and launch your online presence sooner with AstroWind.',
-      },
-      {
-        title: 'Community support',
-        description: `Join the growing AstroWind community for insights, resources, and assistance, ensuring you're never alone on your web development journey.`,
-      },
-    ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1611462985358-60d3498e0364?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-      alt: 'Astronauts Image',
-    }}
-  >
-    <Fragment slot="content">Designed to foster growth and success.</Fragment>
-
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-blue-50 dark:bg-transparent"></div>
-    </Fragment>
-  </Content>
-
-  <!-- Steps Widget ****************** -->
-
-  <Steps
-    title="Get your dream website up and running in no time with AstroWind."
-    items={[
-      {
-        title: 'Step 1: <span class="font-medium">Download</span>',
-        description:
-          "Kickstart with GitHub! Either fork the AstroWind template or simply click 'Use this template'. Your canvas awaits, ready for your digital masterpiece. In just a few clicks, you've already set the foundation.",
-        icon: 'tabler:package',
-      },
-      {
-        title: 'Step 2: <span class="font-medium">Add content</span>',
-        description:
-          "Pour your vision into it. Add images, text, and all that jazz to breathe life into your digital space. Remember, it's the content that tells your story, so make it captivating.",
-        icon: 'tabler:letter-case',
-      },
-      {
-        title: 'Step 3: <span class="font-medium">Customize styles</span>',
-        description:
-          'Give it your personal touch. Tailor colors, fonts, and layouts until it feels just right. Your unique flair, amplified by AstroWind! Precision in design ensures a seamless user experience.',
-        icon: 'tabler:paint',
-      },
-      {
-        title: 'Ready!',
-        icon: 'tabler:check',
-      },
-    ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1616198814651-e71f960c3180?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80',
-      alt: 'Steps image',
-    }}
-  />
-
-  <!-- Features2 Widget ************** -->
-
-  <Features2
-    title="Most used widgets"
-    subtitle="Provides frequently used components for building websites using Tailwind CSS v4"
-    tagline="Components"
-    items={[
-      {
-        title: 'Headers',
-        description: "Ever tried driving without GPS? Boom! That's why websites need headers for direction.",
-        icon: 'flat-color-icons:template',
-      },
-      {
-        title: 'Heros',
-        description:
-          "Picture a superhero landing – epic, right? That's the job of a Hero section, making grand entrances!",
-        icon: 'flat-color-icons:gallery',
-      },
-      {
-        title: 'Features',
-        description:
-          'Where websites strut their stuff and show off superpowers. No holding back on the bragging rights here!',
-        icon: 'flat-color-icons:approval',
-      },
-      {
-        title: 'Content',
-        description:
-          "Dive into the meat and potatoes of a site; without it, you'd just be window shopping. Content is king.",
-        icon: 'flat-color-icons:document',
-      },
-      {
-        title: 'Call-to-Action',
-        description:
-          'That enthusiastic friend who\'s always urging, "Do it! Do it!"? Yeah, that\'s this button nudging you towards adventure.',
-        icon: 'flat-color-icons:advertising',
-      },
-      {
-        title: 'Pricing',
-        description: 'Behold the dessert menu of the website world. Tempting choices await, can you resist?',
-        icon: 'flat-color-icons:currency-exchange',
-      },
-      {
-        title: 'Testimonial',
-        description: 'Step into the gossip corner! Here, other visitors spill the beans and share the juicy details.',
-        icon: 'flat-color-icons:voice-presentation',
-      },
-      {
-        title: 'Contact',
-        description:
-          'Like a digital mailbox, but faster! Drop a line, ask a question, or send a virtual high-five. Ding! Message in.',
-        icon: 'flat-color-icons:business-contact',
-      },
-      {
-        title: 'Footers',
-        description: "The footer's like the credits of a movie but sprinkled with easter eggs. Time to hunt!",
-        icon: 'flat-color-icons:database',
-      },
-    ]}
-  >
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-blue-50 dark:bg-transparent"></div>
-    </Fragment>
-  </Features2>
-
-  <!-- Timeline Widget **************** -->
-
-  <Timeline
-    id="story"
-    layout="alternate"
-    tagline="Our story"
-    title="One template, since 2022"
-    subtitle="Started before Astro 1.0 shipped, shaped by every Astro release since, and by the people who kept sending pull requests."
-    items={[
-      {
-        date: 'June 2022',
-        title: 'A template for a framework still in beta',
-        description:
-          'AstroWind starts on Astro 1.0 beta with a handful of pages, a few widgets and one idea: a website can be fast, simple and good-looking at the same time.',
-        icon: 'tabler:rocket',
-      },
-      {
-        date: '2022',
-        title: 'The most starred Astro theme, in its first year',
-        description:
-          'By December it is the most starred theme in the Astro ecosystem, a place it would hold year after year. The first pull requests from strangers arrive, and they keep coming.',
-        icon: 'tabler:star-filled',
-      },
-      {
-        date: '2022–2023',
-        title: 'The busiest stretch',
-        description:
-          'Astro grows fast and the template grows with it: collections for content, better images, page transitions. The blog matures, the widgets double, the road to 1.0 begins, and more people than ever send pull requests.',
-        icon: 'tabler:users-group',
-      },
-      {
-        date: '2024',
-        title: 'Polish',
-        description:
-          'Astro 4, and a year of small, careful improvements, most of them sent in by contributors: accessibility, tooling, ways to edit and ways to deploy. Three thousand stars by September.',
-        icon: 'tabler:puzzle',
-      },
-      {
-        date: '2025',
-        title: 'Steady, and quieter',
-        description:
-          'Astro 5 and regular updates. Fewer commits, nothing broken, and the stars kept coming: five thousand by October.',
-        icon: 'tabler:refresh',
-      },
-      {
-        date: '2026',
-        title: 'Astro 7 and Tailwind CSS 4',
-        description:
-          'Two framework majors in one year. The template gets a new generation of widgets, complete landing pages, a blog that finally reads like documentation, and a guide so coding assistants know their way around.',
-        icon: 'tabler:sparkles',
-      },
-      {
-        date: '2026',
-        title: 'Release v1',
-        description:
-          'Four years after the first commit, the demo has no placeholders left: every page, every landing page and every post is real, and the template is ready for whatever comes next.',
-        icon: 'tabler:circle-check-filled',
-        highlight: true,
-      },
-      { icon: 'tabler:dots', ghost: true },
-    ]}
-  />
-
-  <!-- Note Widget ******************* -->
-
-  <Note title="Philosophy:" description="Simplicity, Best Practices and High Performance" />
-
-  <!-- HighlightedPosts Widget ******* -->
-
-  <BlogHighlightedPosts
-    title="Find out more content in our Blog"
-    postIds={[
-      'get-started-website-with-astro-tailwind-css',
-      'how-to-customize-astrowind-to-your-brand',
-      'useful-resources-to-create-websites',
-      'landing',
-    ]}
-    information={`The blog is used to display AstroWind documentation.
-                        Each new article will be an important step that you will need to know to be an expert in creating a website using Astro v7 + Tailwind CSS v4.
-                        Astro is a very interesting technology. Thanks.
-                `}
-  />
-
-  <!-- FAQs Widget ******************* -->
-
-  <FAQs
-    id="faqs"
-    title="Frequently Asked Questions"
-    subtitle="The questions people ask before they clone the repository, answered briefly. For step-by-step tasks, the repository ships skills your AI coding assistant can follow."
-    tagline="FAQs"
-    schema
-    items={[
-      {
-        title: 'What is AstroWind?',
-        description:
-          'A free, open-source template for Astro and Tailwind CSS: a static site with a header, footer, twenty-plus reusable widgets, a Markdown/MDX blog, dark mode, RTL support, image optimisation, SEO metadata and an RSS feed, ready to be customised and deployed anywhere static files are served.',
-      },
-      {
-        title: 'What do I need to start?',
-        description:
-          'A current Node.js (the exact minimum is in <code>package.json</code>) and a terminal. Run <code>npm create astro@latest -- --template arthelokyo/astrowind</code>, then <code>npm run dev</code>. Site name, URL, metadata and blog options live in <code>src/config.yaml</code>; colours and fonts in <code>src/components/CustomStyles.astro</code>.',
-      },
-      {
-        title: 'Can I use it for a site without a blog?',
-        description:
-          'Yes. Set <code>apps.blog.isEnabled: false</code> in <code>src/config.yaml</code> and the blog routes, the RSS feed and the post widgets disappear from the build. The rest of the template is unaffected.',
-      },
-      {
-        title: 'How do I change colours, fonts and the logo?',
-        description:
-          'Colours are CSS variables in <code>src/components/CustomStyles.astro</code> (light and dark), fonts are configured in <code>astro.config.ts</code> through Astro’s Fonts API, and the logo is <code>src/components/Logo.astro</code>. The same variables also feed the shadcn/ui-compatible tokens, so shadcn-style components pick up your theme.',
-      },
-      {
-        title: 'Does it work with an AI coding assistant?',
-        description:
-          'It is built for it. The repository includes <code>AGENTS.md</code> with the project conventions and a <code>.agents/skills/</code> folder with step-by-step guides for common tasks (disable the blog, set an Open Graph image, deploy under a base path, connect a CMS, deploy to Cloudflare…), so tools like Claude Code, Codex or Cursor can do them reliably.',
-      },
-      {
-        title: 'Where can I deploy it and what does it cost?',
-        description:
-          'Anywhere that serves static files: Vercel, Netlify, Cloudflare, GitHub Pages, an nginx container (a Dockerfile is included) or your own server. The template is MIT licensed and free for personal and commercial projects.',
-      },
-    ]}
-  />
-
-  <!-- Stats Widget ****************** -->
-
-  <Stats
-    id="stats"
-    countUp
-    stats={[
-      { title: 'GitHub stars', amount: '6K' },
-      { title: 'Forks', amount: '1.7K' },
-      { title: 'Ready-made widgets', amount: '34' },
-      { title: 'Lighthouse score', amount: '100' },
-    ]}
-  />
-
-  <!-- CallToAction Widget *********** -->
-
-  <CallToAction
-    actions={[
-      {
-        variant: 'primary',
-        text: 'Get template',
-        href: 'https://github.com/arthelokyo/astrowind',
-        target: '_blank',
-        icon: 'tabler:download',
-      },
-    ]}
-  >
-    <Fragment slot="title">
-      Astro&nbsp;+&nbsp;<br class="block sm:hidden" /><span class="sm:whitespace-nowrap">Tailwind CSS</span>
-    </Fragment>
-
-    <Fragment slot="subtitle">
-      Free, open source and production-ready. <br class="hidden md:inline" />Clone it, replace the content and deploy.
-    </Fragment>
-  </CallToAction>
+  <!-- Updates feed (after Schmidt Ocean's Category | Date list) -->
+  {
+    posts.length > 0 && (
+      <section class="py-16 md:py-24" aria-labelledby="updates">
+        <div class="mx-auto max-w-7xl px-4 lg:px-6">
+          <SectionHead
+            id="updates"
+            eyebrow="News"
+            title="Latest updates"
+            link={{ text: 'All news', href: getPermalink('/news') }}
+            class="scroll-mt-28"
+          />
+          <ul class="mt-10 grid border-t border-line md:grid-cols-3 md:border-t-0">
+            {posts.map((post, i) => (
+              <li
+                class:list={[
+                  'border-b border-line py-6 md:border-t-4 md:border-b-0 md:border-t-primary md:pt-6 md:pb-0',
+                  i > 0 && 'md:pl-8',
+                  i < posts.length - 1 && 'md:pr-8',
+                ]}
+              >
+                <p class="eyebrow text-muted">
+                  {post.category?.title ?? 'News'} <span aria-hidden="true">|</span>{' '}
+                  <time datetime={post.publishDate.toISOString()}>{postDate.format(post.publishDate)}</time>
+                </p>
+                <h3 class="mt-3 text-xl leading-snug font-bold text-heading">
+                  <a
+                    href={getPermalink(post.permalink, 'post')}
+                    class="underline-offset-4 hover:text-link hover:underline"
+                  >
+                    {post.title}
+                  </a>
+                </h3>
+                {post.excerpt && <p class="mt-2 text-muted">{post.excerpt}</p>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
 </Layout>

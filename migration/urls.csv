@@ -1,0 +1,5 @@
+old_url,title,type,in_sitemap,notes
+https://www.dco-oo.org/,DCO - OO,homepage,no,Serves the same content as /home
+https://www.dco-oo.org/home,Home,page,yes,"Hero, About, partners/programmes, OSM'26 events"
+https://www.dco-oo.org/contact,Contact,page,yes,Secretariat contacts + contact form
+https://www.dco-oo.org/cart,,squarespace-system,no,Squarespace default cart page; not used

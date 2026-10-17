@@ -1,0 +1,35 @@
+---
+// Partner / programme card (after ONC): icon tile (placeholder until we have
+// permission to use each organization's logo), name, scope tag, and a
+// hover arrow. The whole card is the link.
+import { Icon } from 'astro-icon/components';
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  item: CollectionEntry<'network'>;
+}
+
+const { name, acronym, scope, url, type } = Astro.props.item.data;
+const icon = type === 'partner' ? 'tabler:affiliate' : 'tabler:topology-star-3';
+---
+
+<a
+  href={url}
+  class="group flex h-full items-start gap-4 rounded-[4px] border border-line bg-white p-5 transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+>
+  <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[4px] bg-mist text-link">
+    <Icon name={icon} class="h-6 w-6" aria-hidden="true" />
+  </span>
+  <span class="min-w-0 flex-1">
+    <span class="block leading-snug font-semibold text-heading group-hover:text-link">
+      {acronym ? `${acronym}` : name}
+    </span>
+    {acronym && <span class="mt-0.5 block text-xs text-muted">{name}</span>}
+    <span class="eyebrow mt-2 block text-[0.625rem] text-link">{scope}</span>
+  </span>
+  <Icon
+    name="tabler:arrow-up-right"
+    class="h-5 w-5 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-link"
+    aria-hidden="true"
+  />
+</a>

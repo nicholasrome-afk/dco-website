@@ -33,15 +33,25 @@ export default defineConfig({
     defaultStrategy: 'viewport',
   },
 
-  // Native Fonts API: self-hosts + subsets + preloads Inter and generates
+  // Native Fonts API: self-hosts + subsets + preloads the fonts and generates
   // metric-adjusted fallbacks. Injected via <Font /> in Layout.astro and
-  // consumed through the `--font-inter` CSS variable in CustomStyles.astro.
+  // consumed through the `--font-*` CSS variables in CustomStyles.astro.
+  // Plus Jakarta Sans = headings, Inter = body copy, labels and event metadata.
   fonts: [
     {
       provider: fontProviders.fontsource(),
       name: 'Inter',
       cssVariable: '--font-inter',
       weights: ['100 900'],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['sans-serif'],
+    },
+    {
+      provider: fontProviders.fontsource(),
+      name: 'Plus Jakarta Sans',
+      cssVariable: '--font-jakarta',
+      weights: ['200 800'],
       styles: ['normal'],
       subsets: ['latin'],
       fallbacks: ['sans-serif'],
