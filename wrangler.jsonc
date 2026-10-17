@@ -9,6 +9,9 @@
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",
+    // Serve /events (not /events/) to match Astro's `trailingSlash: false`
+    // links and canonical URLs, without a redirect on every page.
+    "html_handling": "drop-trailing-slash",
   },
   // Required by `wrangler preview` (Worker Previews, used for non-production
   // branch builds). Empty is fine: assets and settings above are shared.
