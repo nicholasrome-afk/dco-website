@@ -5,7 +5,7 @@ import { Icon } from 'astro-icon/components';
 import { ORG } from '~/config/org';
 ---
 
-<div class="bg-abyss text-on-dark-muted">
+<aside class="bg-abyss text-on-dark-muted" aria-label="Site information">
   <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-3 py-2 text-xs lg:px-6">
     <p class="eyebrow hidden text-[0.6875rem] md:block">
       Hosted by <a class="text-on-dark hover:underline" href={ORG.host.url}>{ORG.host.name}</a>
@@ -26,4 +26,4 @@ import { ORG } from '~/config/org';
       </li>
     </ul>
   </div>
-</div>
+</aside>
