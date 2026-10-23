@@ -4,6 +4,7 @@ import { ORG } from './config/org';
 export const headerData = {
   links: [
     { text: 'About', href: getPermalink('/about') },
+    { text: 'Blueprint', href: getPermalink('/blueprint') },
     { text: 'Events', href: getPermalink('/events') },
     { text: 'News', href: getBlogPermalink() },
     { text: 'Contact', href: getPermalink('/contact') },
@@ -25,6 +26,7 @@ export const footerData = {
       title: 'On this site',
       links: [
         { text: 'About', href: getPermalink('/about') },
+        { text: 'Solutions Blueprint', href: getPermalink('/blueprint') },
         { text: 'Events', href: getPermalink('/events') },
         { text: 'News', href: getBlogPermalink() },
         { text: 'Contact', href: getPermalink('/contact') },

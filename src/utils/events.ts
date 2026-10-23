@@ -24,6 +24,62 @@ export const shortDay = (d: Date) => `${weekday(d)} ${dayOfMonth(d)} ${monthShor
 export const timeRange = ({ startTime, endTime }: DcoEvent['data']) =>
   startTime && endTime ? `${startTime}–${endTime}` : (startTime ?? '');
 
+/** Offset (ms) of `timeZone` from UTC at the instant `at`. */
+function tzOffset(at: Date, timeZone: string) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+      .formatToParts(at)
+      .map((p) => [p.type, p.value])
+  );
+  const asUtc = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+  return asUtc - at.getTime();
+}
+
+/** The UTC instant of a wall-clock time ("HH:MM") on an event's calendar day in its time zone. */
+function wallTimeToUtc(day: Date, hhmm: string, timeZone: string) {
+  const [h, m] = hhmm.split(':').map(Number);
+  const guess = Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), h, m);
+  const first = guess - tzOffset(new Date(guess), timeZone);
+  return new Date(guess - tzOffset(new Date(first), timeZone));
+}
+
+/** Start and end as UTC instants (end defaults to one hour after start); null without a start time. */
+export function eventInstants(data: DcoEvent['data']) {
+  if (!data.startTime) return null;
+  const start = wallTimeToUtc(data.date, data.startTime, data.timezone);
+  const end = data.endTime ? wallTimeToUtc(data.date, data.endTime, data.timezone) : new Date(start.getTime() + 36e5);
+  return { start, end };
+}
+
+/** Short time-zone name for the event at its start, e.g. "UTC", "GMT", "PST". */
+export function tzLabel(data: DcoEvent['data']) {
+  const at = eventInstants(data)?.start ?? data.date;
+  return (
+    new Intl.DateTimeFormat('en-GB', { timeZone: data.timezone, timeZoneName: 'short' })
+      .formatToParts(at)
+      .find((p) => p.type === 'timeZoneName')?.value ?? data.timezone
+  );
+}
+
+/** "16:00–18:00 UTC" */
+export const timeRangeWithZone = (data: DcoEvent['data']) => {
+  const t = timeRange(data);
+  return t ? `${t} ${tzLabel(data)}` : '';
+};
+
+/** Absolute URL for an event link that may be site-relative ("/blueprint"). */
+export const absoluteLink = (link: string | undefined, site: string) =>
+  link ? new URL(link, site.endsWith('/') ? site : `${site}/`).toString() : undefined;
+
 /** Organizers minus the generic "partners" entry, which is shown as "+ partners". */
 export const splitOrganizers = (organizers: string[]) => {
   const named = organizers.filter((o) => o.toLowerCase() !== 'partners');

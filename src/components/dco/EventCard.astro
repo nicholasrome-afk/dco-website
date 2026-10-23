@@ -1,8 +1,21 @@
 ---
 // Event card (after MBARI): square date block, format pills, room and
 // co-organizer tags. `showDate={false}` hides the date block inside day tabs.
+// Times show their zone ("16:00–18:00 UTC"); visitors elsewhere also see their
+// own local time (filled in by the browser) and can download a calendar file.
 import { Icon } from 'astro-icon/components';
-import { dayOfMonth, monthShort, weekday, timeRange, splitOrganizers, fullDate, type DcoEvent } from '~/utils/events';
+import {
+  dayOfMonth,
+  monthShort,
+  weekday,
+  timeRangeWithZone,
+  eventInstants,
+  splitOrganizers,
+  fullDate,
+  type DcoEvent,
+} from '~/utils/events';
+import { getPermalink } from '~/utils/permalinks';
+import LocalTime from './LocalTime.astro';
 
 export interface Props {
   event: DcoEvent;
@@ -13,7 +26,11 @@ export interface Props {
 const { event, showDate = true, headingLevel: H = 'h3' } = Astro.props;
 const { title, date, formats, location, organizers, link, scheduleNote, summary, registerUrl, registerBy } = event.data;
 const { named, withPartners } = splitOrganizers(organizers);
-const time = timeRange(event.data);
+const time = timeRangeWithZone(event.data);
+const instants = eventInstants(event.data);
+const icsHref = getPermalink(`/events/${event.id}.ics`);
+// No calendar link once an event is over (as of the last build).
+const upcoming = instants ? instants.end.getTime() > Date.now() : false;
 ---
 
 <article class="flex gap-4 rounded-[4px] border border-line bg-white p-5 md:gap-6 md:p-6">
@@ -63,7 +80,10 @@ const time = timeRange(event.data);
               <Icon name="tabler:clock" class="h-4 w-4" aria-hidden="true" />
               <span class="sr-only">Time</span>
             </dt>
-            <dd>{time}</dd>
+            <dd>
+              {time}
+              {instants && <LocalTime {...instants} zone={event.data.timezone} class="text-default" />}
+            </dd>
           </div>
         )
       }
@@ -92,12 +112,25 @@ const time = timeRange(event.data);
       )
     }
     {
-      registerUrl && (
-        <p class="mt-4 text-sm">
-          <a href={registerUrl} class="font-semibold text-link underline-offset-4 hover:underline">
-            Register
-          </a>
-          {registerBy && <span class="text-muted"> by {fullDate(registerBy)}</span>}
+      (registerUrl || upcoming) && (
+        <p class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          {registerUrl && (
+            <span>
+              <a href={registerUrl} class="font-semibold text-link underline-offset-4 hover:underline">
+                Register
+              </a>
+              {registerBy && <span class="text-muted"> by {fullDate(registerBy)}</span>}
+            </span>
+          )}
+          {upcoming && (
+            <a
+              href={icsHref}
+              download
+              class="inline-flex items-center gap-1 font-semibold text-link underline-offset-4 hover:underline"
+            >
+              <Icon name="tabler:calendar-plus" class="h-4 w-4" aria-hidden="true" /> Add to calendar
+            </a>
+          )}
         </p>
       )
     }

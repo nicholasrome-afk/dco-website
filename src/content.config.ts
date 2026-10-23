@@ -102,7 +102,8 @@ const eventCollection = defineCollection({
     organizers: z.array(z.string()).default([]),
     /** Groups events from the same meeting, e.g. "OSM'26". */
     conference: z.string().optional(),
-    link: z.url().optional(),
+    /** Event page: a full URL, or a page on this site such as "/blueprint". */
+    link: z.union([z.url(), z.string().regex(/^\//, 'Use a full URL or a site path starting with /')]).optional(),
     registerUrl: z.url().optional(),
     registerBy: z.coerce.date().optional(),
     summary: z.string().optional(),
