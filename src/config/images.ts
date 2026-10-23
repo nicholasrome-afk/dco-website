@@ -34,10 +34,10 @@ export const IMAGES = {
     src: heroNetworkMap,
     alt: 'World map with thousands of dots across every ocean, each the latest reported position of an ocean observing platform',
     credit: 'Data: OceanOPS (WMO-IOC) · Land: Natural Earth',
-    license: 'Platform data © OceanOPS: reuse to be confirmed with OceanOPS. Land: public domain',
+    license:
+      'Platform data used with permission of OceanOPS (WMO-IOC), October 2026. Land: Natural Earth, public domain',
     sourceUrl: 'https://www.ocean-ops.org/board',
     placeholder: false,
-    pendingPermission: true,
   },
   /** Home spotlight tile: observing hardware in the field. */
   spotlight: {

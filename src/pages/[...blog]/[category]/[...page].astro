@@ -3,11 +3,11 @@ import type { InferGetStaticPropsType, GetStaticPaths } from 'astro';
 import { blogCategoryRobots, getStaticPathsBlogCategory } from '~/utils/blog';
 
 import Layout from '~/layouts/PageLayout.astro';
-import BlogList from '~/components/blog/List.astro';
-import Headline from '~/components/blog/Headline.astro';
+import PageHeader from '~/components/dco/PageHeader.astro';
+import NewsList from '~/components/dco/NewsList.astro';
 import Pagination from '~/components/blog/Pagination.astro';
-import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
-import { getPermalink, getBlogPermalink } from '~/utils/permalinks';
+import { getBlogPermalink } from '~/utils/permalinks';
+import { ORG } from '~/config/org';
 
 export const prerender = true;
 
@@ -18,20 +18,11 @@ export const getStaticPaths = (async ({ paginate }) => {
 type Props = InferGetStaticPropsType<typeof getStaticPaths> & { category: Record<string, string> };
 
 const { page, category } = Astro.props as Props;
-
 const currentPage = page.currentPage ?? 1;
 
-const breadcrumbs = [
-  { text: 'Home', href: getPermalink('/') },
-  { text: 'Blog', href: getBlogPermalink() },
-  ...(currentPage > 1
-    ? [{ text: category.title, href: getPermalink(category.slug, 'category') }, { text: `Page ${currentPage}` }]
-    : [{ text: category.title }]),
-];
-
 const metadata = {
-  title: `Category '${category.title}' ${currentPage > 1 ? ` — Page ${currentPage}` : ''}`,
-  description: `Articles in the ${category.title} category of the AstroWind blog.`,
+  title: `${category.title}${currentPage > 1 ? ` — Page ${currentPage}` : ''} | News`,
+  description: `${category.title} from the ${ORG.name}.`,
   robots: {
     index: blogCategoryRobots?.index,
     follow: blogCategoryRobots?.follow,
@@ -40,10 +31,15 @@ const metadata = {
 ---
 
 <Layout metadata={metadata}>
-  <Breadcrumbs bar items={breadcrumbs} />
-  <section class="px-4 md:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
-    <Headline>{category.title}</Headline>
-    <BlogList posts={page.data} />
-    <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
+  <PageHeader eyebrow="News" title={category.title}>
+    <a href={getBlogPermalink()} class="mt-6 inline-block text-on-dark-link underline-offset-4 hover:underline"
+      >All news</a
+    >
+  </PageHeader>
+  <section class="mx-auto max-w-7xl px-4 py-16 md:py-20 lg:px-6">
+    <NewsList posts={page.data} />
+    <div class="mt-10">
+      <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
+    </div>
   </section>
 </Layout>

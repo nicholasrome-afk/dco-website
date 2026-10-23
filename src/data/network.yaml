@@ -1,6 +1,6 @@
 # Decade Implementing Partners and Decade Challenge 7 Programmes.
 # Names and links come from the old dco-oo.org homepage.
-# `scope` is a one-line tag shown on each card: DRAFTS, please review.
+# `scope` is a one-line tag shown on each card (wording approved by the Secretariat, Oct 2026).
 
 # --- Decade Implementing Partners ---------------------------------------------
 - id: eu4oceanobs
@@ -105,7 +105,7 @@
 - id: onedeepocean
   name: OneDeepOcean
   type: programme
-  scope: Ocean Decade programme (scope to confirm)
+  scope: Ocean Decade programme
   url: https://www.onedeepocean.org/
 
 - id: seabed-2030

@@ -1,294 +1,126 @@
 ---
-import Features2 from '~/components/widgets/Features2.astro';
-import Features3 from '~/components/widgets/Features3.astro';
-import Hero from '~/components/widgets/Hero.astro';
-import Stats from '~/components/widgets/Stats.astro';
-import Steps2 from '~/components/widgets/Steps2.astro';
-import Team from '~/components/widgets/Team.astro';
-import Timeline from '~/components/widgets/Timeline.astro';
+import { Icon } from 'astro-icon/components';
+import { getCollection } from 'astro:content';
+
 import Layout from '~/layouts/PageLayout.astro';
+import PageHeader from '~/components/dco/PageHeader.astro';
+import SectionHead from '~/components/dco/SectionHead.astro';
+import NetworkCard from '~/components/dco/NetworkCard.astro';
+
+import { ORG, ORG_STATUS } from '~/config/org';
+import { getPermalink } from '~/utils/permalinks';
 
 const metadata = {
-  title: 'About us',
-  description:
-    'About page demo built with AstroWind: hero, stats, feature grids and timelines ready to describe your company.',
+  title: 'About',
+  description: `${ORG_STATUS} We connect the Decade Actions addressing ${ORG.decade.challenge}.`,
 };
+
+const label = (n: { data: { acronym?: string; name: string } }) => n.data.acronym ?? n.data.name;
+const network = (await getCollection('network')).sort((a, b) => label(a).localeCompare(label(b)));
+const groups = [
+  { title: 'Decade Implementing Partners', items: network.filter((n) => n.data.type === 'partner') },
+  { title: 'Decade Challenge 7 Programmes', items: network.filter((n) => n.data.type === 'programme') },
+];
+
+const glance = [
+  { icon: 'tabler:building', label: 'Hosted by', text: ORG.host.name, href: ORG.host.url },
+  { icon: 'tabler:world', label: 'Contributing to', text: ORG.decade.name, href: ORG.decade.url },
+  {
+    icon: 'tabler:affiliate',
+    label: 'Working with',
+    text: `${ORG.goos.name} (${ORG.goos.shortName})`,
+    href: ORG.goos.url,
+  },
+];
 ---
 
 <Layout metadata={metadata}>
-  <!-- Hero Widget ******************* -->
+  <PageHeader eyebrow="About" title={`About ${ORG.shortName}`} intro={ORG_STATUS} />
 
-  <Hero
-    tagline="About us"
-    image={{
-      src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-      alt: 'Caos Image',
-    }}
-  >
-    <Fragment slot="title">
-      Elevate your online presence with our <br />
-      <span class="text-accent dark:text-white"> Beautiful Website Templates</span>
-    </Fragment>
+  <!-- Challenge 7 (text migrated from the old dco-oo.org homepage) -->
+  <section class="py-16 md:py-24" aria-labelledby="challenge">
+    <div class="mx-auto grid max-w-7xl gap-12 px-4 lg:grid-cols-12 lg:px-6">
+      <div class="lg:col-span-7">
+        <p class="eyebrow-bar text-muted">{ORG.decade.challenge}</p>
+        <h2 id="challenge" class="mt-3 text-3xl font-bold tracking-tight text-heading md:text-4xl">
+          Why ocean observing needs coordination
+        </h2>
+        <div class="mt-6 space-y-5 text-lg text-default">
+          <p class="font-semibold">
+            {ORG.decade.challenge} identifies the need to ensure a sustainable ocean observing system across all ocean basins
+            that delivers accessible, timely and actionable data and information to all users.
+          </p>
+          <p>
+            Sustained and fit-for-purpose ocean observations will also be vital to address the other Challenges, notably
+            those related to the ocean-climate nexus, ecosystem management, marine pollution, blue food and the
+            development of a sustainable ocean economy. The broad scope of the Ocean Decade is a major opportunity for
+            the accelerated development of sustained observations, to identify and fill gaps in capacity, to connect the
+            data and the use across silos, to answer the pull to deliver solutions for sustainable economic growth.
+          </p>
+          <p>
+            The {ORG.name} ({ORG.shortName}) will ensure connection between the numerous Decade Actions addressing
+            Challenge 7, and ensure actions are built for the future, and that the coordination goes beyond GOOS’
+            existing scope. In return, there is a clear opportunity for {ORG.shortName} to have a transformational effect
+            that will lift ocean observing capacity and lead to transformation of GOOS within the Ocean Decade to meet the
+            challenges beyond 2030, leaving behind a practical legacy.
+          </p>
+        </div>
+      </div>
 
-    <Fragment slot="subtitle">
-      Donec efficitur, ipsum quis congue luctus, mauris magna convallis mauris, eu auctor nisi lectus non augue. Donec
-      quis lorem non massa vulputate efficitur ac at turpis. Sed tincidunt ex a nunc convallis, et lobortis nisi tempus.
-      Suspendisse vitae nisi eget tortor luctus maximus sed non lectus.
-    </Fragment>
-  </Hero>
+      <aside class="lg:col-span-5" aria-labelledby="glance">
+        <div class="rounded-[4px] bg-mist p-6 md:p-8">
+          <h2 id="glance" class="eyebrow text-muted">At a glance</h2>
+          <ul class="mt-5 space-y-6">
+            {
+              glance.map(({ icon, label, text, href }) => (
+                <li class="flex gap-4">
+                  <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[4px] bg-white text-link">
+                    <Icon name={icon} class="h-6 w-6" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span class="eyebrow block text-[0.6875rem] text-muted">{label}</span>
+                    <a
+                      href={href}
+                      class="mt-1 block font-semibold text-heading underline-offset-4 hover:text-link hover:underline"
+                    >
+                      {text}
+                    </a>
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+          <a href={getPermalink('/contact')} class="btn-dco-primary mt-8">
+            <Icon name="tabler:mail" class="h-4 w-4" aria-hidden="true" /> Contact the Secretariat
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
 
-  <!-- Stats Widget ****************** -->
-
-  <Stats
-    title="Statistics about us"
-    stats={[
-      { title: 'Offices', amount: '4' },
-      { title: 'Employees', amount: '248' },
-      { title: 'Templates', amount: '12' },
-      { title: 'Awards', amount: '24' },
-    ]}
-  />
-
-  <!-- Features3 Widget ************** -->
-
-  <Features3
-    title="Our templates"
-    subtitle="Etiam scelerisque, enim eget vestibulum luctus, nibh mauris blandit nulla, nec vestibulum risus justo ut enim. Praesent lacinia diam et ante imperdiet euismod."
-    columns={3}
-    isBeforeContent={true}
-    items={[
+  <!-- Partners and programmes -->
+  <section class="bg-mist py-16 md:py-24" aria-labelledby="network">
+    <div class="mx-auto max-w-7xl px-4 lg:px-6">
+      <SectionHead
+        id="network"
+        eyebrow="Our network"
+        title="Partners and programmes"
+        intro={`${groups[0].items.length} Decade Implementing Partners and ${groups[1].items.length} Decade Challenge 7 Programmes are building ocean observing capacity across every ocean basin.`}
+      />
       {
-        title: 'Educational',
-        description:
-          'Morbi faucibus luctus quam, sit amet aliquet felis tempor id. Cras augue massa, ornare quis dignissim a, molestie vel nulla.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Interior Design',
-        description:
-          'Vivamus porttitor, tortor convallis aliquam pretium, turpis enim consectetur elit, vitae egestas purus erat ac nunc nulla.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Photography',
-        description:
-          'Duis sed lectus in nisl vehicula porttitor eget quis odio. Aliquam erat volutpat. Nulla eleifend nulla id sem fermentum.',
-        icon: 'tabler:template',
-      },
-    ]}
-  />
-
-  <!-- Features3 Widget ************** -->
-
-  <Features3
-    columns={3}
-    isAfterContent={true}
-    items={[
-      {
-        title: 'E-commerce',
-        description:
-          'Rutrum non odio at vehicula. Proin ipsum justo, dignissim in vehicula sit amet, dignissim id quam. Sed ac tincidunt sapien.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Blog',
-        description:
-          'Nullam efficitur volutpat sem sed fringilla. Suspendisse et enim eu orci volutpat laoreet ac vitae libero.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Business',
-        description:
-          'Morbi et elit finibus, facilisis justo ut, pharetra ipsum. Donec efficitur, ipsum quis congue luctus, mauris magna.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Branding',
-        description:
-          'Suspendisse vitae nisi eget tortor luctus maximus sed non lectus. Cras malesuada pretium placerat. Nullam venenatis dolor a ante rhoncus.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Medical',
-        description:
-          'Vestibulum malesuada lacus id nibh posuere feugiat. Nam volutpat nulla a felis ultrices, id suscipit mauris congue. In hac habitasse platea dictumst.',
-        icon: 'tabler:template',
-      },
-      {
-        title: 'Fashion Design',
-        description:
-          'Maecenas eu tellus eget est scelerisque lacinia et a diam. Aliquam velit lorem, vehicula id fermentum et, rhoncus et purus.',
-        icon: 'tabler:template',
-      },
-    ]}
-    image={{
-      src: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-      alt: 'Colorful Image',
-    }}
-  />
-
-  <!-- Steps2 Widget ****************** -->
-
-  <Steps2
-    title="Our values"
-    subtitle="Maecenas eu tellus eget est scelerisque lacinia et a diam. Aliquam velit lorem, vehicula id fermentum et, rhoncus et purus. Nulla facilisi. Vestibulum malesuada lacus."
-    items={[
-      {
-        title: 'Customer-centric approach',
-        description:
-          'Donec id nibh neque. Quisque et fermentum tortor. Fusce vitae dolor a mauris dignissim commodo. Ut eleifend luctus condimentum.',
-      },
-      {
-        title: 'Constant Improvement',
-        description:
-          'Phasellus laoreet fermentum venenatis. Vivamus dapibus pulvinar arcu eget mattis. Fusce eget mauris leo.',
-      },
-      {
-        title: 'Ethical Practices',
-        description:
-          'Vestibulum imperdiet libero et lectus molestie, et maximus augue porta. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.',
-      },
-    ]}
-  />
-
-  <!-- Timeline Widget **************** -->
-
-  <Timeline
-    id="history"
-    tagline="Our story"
-    title="Achievements"
-    subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sagittis, quam nec venenatis lobortis, mi risus tempus nulla, sed porttitor est nibh at nulla."
-    layout="alternate"
-    items={[
-      {
-        date: '2019',
-        title: 'The first template',
-        description: 'Nam malesuada urna in enim imperdiet tincidunt. Phasellus non tincidunt nisi, at elementum mi.',
-        icon: 'tabler:rocket',
-      },
-      {
-        date: '2021',
-        title: 'Global reach',
-        description:
-          'Cras semper nulla leo, eget laoreet erat cursus sed. Praesent faucibus massa in purus iaculis dictum.',
-        icon: 'tabler:globe',
-      },
-      {
-        date: '2023',
-        title: 'Positive customer feedback and reviews',
-        description:
-          'Phasellus lacinia cursus velit, eu malesuada magna pretium eu. Etiam aliquet tellus purus, blandit lobortis ex rhoncus vitae.',
-        icon: 'tabler:message-star',
-      },
-      {
-        date: '2026',
-        title: 'Awards and recognition as industry experts',
-        description: 'Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci.',
-        icon: 'tabler:award',
-        highlight: true,
-      },
-    ]}
-  />
-
-  <!-- Team Widget ******************** -->
-
-  <Team
-    id="team"
-    tagline="The people"
-    title="Meet the team"
-    subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sagittis, quam nec venenatis lobortis, mi risus tempus nulla."
-    members={[
-      {
-        name: 'Alicia Rivera',
-        role: 'Founder & CEO',
-        image: {
-          src: 'https://images.unsplash.com/photo-1618835962148-cf177563c6c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=930&q=80',
-          alt: 'Alicia Rivera',
-        },
-        bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-        socials: [
-          { icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/', ariaLabel: 'LinkedIn' },
-          { icon: 'tabler:brand-x', href: 'https://x.com/', ariaLabel: 'X' },
-        ],
-      },
-      {
-        name: 'Daniel Okafor',
-        role: 'Lead developer',
-        image: {
-          src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-          alt: 'Daniel Okafor',
-        },
-        bio: 'Morbi sagittis, quam nec venenatis lobortis, mi risus tempus nulla.',
-        socials: [{ icon: 'tabler:brand-github', href: 'https://github.com/', ariaLabel: 'GitHub' }],
-      },
-      {
-        name: 'Mei Tanaka',
-        role: 'Product designer',
-        image: {
-          src: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-          alt: 'Mei Tanaka',
-        },
-        bio: 'Sed porttitor est nibh at nulla. Cras semper nulla leo, eget laoreet erat.',
-        socials: [{ icon: 'tabler:brand-dribbble', href: 'https://dribbble.com/', ariaLabel: 'Dribbble' }],
-      },
-      {
-        name: 'Jonas Weber',
-        role: 'Customer success',
-        image: {
-          src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
-          alt: 'Jonas Weber',
-        },
-        bio: 'Praesent faucibus massa in purus iaculis dictum.',
-        socials: [{ icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/', ariaLabel: 'LinkedIn' }],
-      },
-    ]}
-  />
-
-  <!-- Features2 Widget ************** -->
-
-  <Features2
-    title="Our locations"
-    tagline="Find us"
-    columns={4}
-    items={[
-      {
-        title: 'EE.UU',
-        description: '1234 Lorem Ipsum St, 12345, Miami',
-      },
-      {
-        title: 'Spain',
-        description: '5678 Lorem Ipsum St, 56789, Madrid',
-      },
-      {
-        title: 'Australia',
-        description: '9012 Lorem Ipsum St, 90123, Sydney',
-      },
-      {
-        title: 'Brazil',
-        description: '3456 Lorem Ipsum St, 34567, São Paulo',
-      },
-    ]}
-  />
-
-  <!-- Features2 Widget ************** -->
-
-  <Features2
-    title="Technical Support"
-    tagline="Contact us"
-    columns={2}
-    items={[
-      {
-        title: 'Chat with us',
-        description:
-          'Integer luctus laoreet libero, auctor varius purus rutrum sit amet. Ut nec molestie nisi, quis eleifend mi.',
-        icon: 'tabler:messages',
-      },
-      {
-        title: 'Call us',
-        description:
-          'Mauris faucibus finibus orci, in posuere elit viverra non. In hac habitasse platea dictumst. Cras lobortis metus a hendrerit congue.',
-        icon: 'tabler:headset',
-      },
-    ]}
-  />
+        groups.map((g) => (
+          <>
+            <h3 class="eyebrow mt-12 text-muted">{g.title}</h3>
+            <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {g.items.map((item) => (
+                <li>
+                  <NetworkCard item={item} />
+                </li>
+              ))}
+            </ul>
+          </>
+        ))
+      }
+    </div>
+  </section>
 </Layout>

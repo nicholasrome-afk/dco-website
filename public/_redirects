@@ -1,0 +1,3 @@
+# Redirects from the old Squarespace site (see migration/urls.csv).
+# Format: <old path> <new path> <status>
+/home / 301

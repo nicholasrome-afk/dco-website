@@ -4,23 +4,16 @@ import type { InferGetStaticPropsType, GetStaticPaths } from 'astro';
 import merge from 'lodash.merge';
 import type { ImageMetadata } from 'astro';
 import Layout from '~/layouts/PageLayout.astro';
-import SinglePost from '~/components/blog/SinglePost.astro';
-import ToBlogLink from '~/components/blog/ToBlogLink.astro';
+import { Icon } from 'astro-icon/components';
+import Image from '~/components/common/Image.astro';
 
 import { getCanonical, getPermalink, getBlogPermalink } from '~/utils/permalinks';
-import {
-  getStaticPathsBlogPost,
-  blogPostRobots,
-  isBlogListRouteEnabled,
-  isBlogCategoryRouteEnabled,
-} from '~/utils/blog';
+import { getStaticPathsBlogPost, blogPostRobots } from '~/utils/blog';
 import { findImage } from '~/utils/images';
 import { truncateAtWord } from '~/utils/utils';
 import type { MetaData } from '~/types';
-import RelatedPosts from '~/components/blog/RelatedPosts.astro';
-import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
 import StructuredData from '~/components/common/StructuredData.astro';
-import { SITE } from 'astrowind:config';
+import { ORG } from '~/config/org';
 
 export const prerender = true;
 
@@ -72,29 +65,68 @@ const articleSchema = {
   datePublished: post.publishDate.toISOString(),
   dateModified: (post.updateDate ?? post.publishDate).toISOString(),
   ...(post.author ? { author: { '@type': 'Person', name: post.author } } : {}),
-  publisher: { '@type': 'Organization', name: SITE?.name },
+  publisher: { '@type': 'Organization', name: ORG.name },
   ...(imageUrl ? { image: imageUrl.startsWith('http') ? imageUrl : new URL(imageUrl, Astro.site).toString() } : {}),
   ...(post.category ? { articleSection: post.category.title } : {}),
   ...(post.tags?.length ? { keywords: post.tags.map((tag) => tag.title).join(', ') } : {}),
   mainEntityOfPage: String(url),
 };
 
-const breadcrumbs = [
-  { text: 'Home', href: getPermalink('/') },
-  ...(isBlogListRouteEnabled ? [{ text: 'Blog', href: getBlogPermalink() }] : []),
-  ...(post.category && isBlogCategoryRouteEnabled
-    ? [{ text: post.category.title, href: getPermalink(post.category.slug, 'category') }]
-    : []),
-  { text: post.title },
-];
+const date = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 ---
 
 <Layout metadata={metadata}>
   <StructuredData slot="head" schema={articleSchema} />
-  <Breadcrumbs bar hideCurrent items={breadcrumbs} />
-  <SinglePost post={{ ...post, image: image }} url={url}>
-    {post.Content && <post.Content />}
-  </SinglePost>
-  <ToBlogLink />
-  <RelatedPosts post={post} />
+  <article>
+    <header class="bg-abyss">
+      <div class="mx-auto max-w-4xl px-4 py-16 md:py-20 lg:px-6">
+        <p class="eyebrow-bar text-on-dark-muted before:bg-accent">
+          {
+            post.category ? (
+              <a href={getPermalink(post.category.slug, 'category')} class="hover:text-on-dark hover:underline">
+                {post.category.title}
+              </a>
+            ) : (
+              'News'
+            )
+          }
+          <span aria-hidden="true">|</span>
+          <time datetime={post.publishDate.toISOString()}>{date.format(post.publishDate)}</time>
+        </p>
+        <h1 class="mt-4 text-3xl leading-tight font-extrabold tracking-tight text-white md:text-5xl">{post.title}</h1>
+        {post.excerpt && <p class="mt-5 text-lg text-on-dark-muted md:text-xl">{post.excerpt}</p>}
+      </div>
+    </header>
+
+    {
+      image && (
+        <div class="mx-auto max-w-4xl px-4 pt-10 lg:px-6">
+          <Image
+            src={image}
+            alt={post.imageAlt || ''}
+            widths={[400, 900]}
+            sizes="(max-width: 900px) 100vw, 900px"
+            width={900}
+            height={506}
+            class="w-full rounded-[4px]"
+          />
+        </div>
+      )
+    }
+
+    <div
+      class="prose prose-lg mx-auto max-w-4xl px-4 py-12 prose-headings:font-heading prose-headings:text-heading prose-a:text-link prose-strong:text-heading lg:px-6"
+    >
+      {post.Content && <post.Content />}
+    </div>
+  </article>
+
+  <nav class="mx-auto max-w-4xl px-4 pb-20 lg:px-6" aria-label="News">
+    <a
+      href={getBlogPermalink()}
+      class="inline-flex items-center gap-1.5 font-semibold text-link underline-offset-4 hover:underline"
+    >
+      <Icon name="tabler:arrow-left" class="h-4 w-4" aria-hidden="true" /> All news
+    </a>
+  </nav>
 </Layout>

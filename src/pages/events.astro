@@ -4,6 +4,7 @@ import { Icon } from 'astro-icon/components';
 import Layout from '~/layouts/PageLayout.astro';
 import EventCard from '~/components/dco/EventCard.astro';
 import DayFilter from '~/components/dco/DayFilter.astro';
+import PageHeader from '~/components/dco/PageHeader.astro';
 
 import { ORG } from '~/config/org';
 import { getEvents, splitByTime, groupByConference, dayOfMonth, fullDate } from '~/utils/events';
@@ -35,16 +36,11 @@ const dateSpan = (list: typeof events) => {
 ---
 
 <Layout metadata={metadata}>
-  <!-- Page header -->
-  <section class="bg-abyss">
-    <div class="mx-auto max-w-7xl px-4 py-16 md:py-20 lg:px-6">
-      <p class="eyebrow-bar text-on-dark-muted before:bg-accent">Events</p>
-      <h1 class="mt-4 text-4xl font-extrabold tracking-tight text-white md:text-6xl">Events</h1>
-      <p class="mt-4 max-w-2xl text-lg text-on-dark-muted">
-        Conferences, sessions and workshops from across the {ORG.decade.challenge} community.
-      </p>
-    </div>
-  </section>
+  <PageHeader
+    eyebrow="Events"
+    title="Events"
+    intro={`Conferences, sessions and workshops from across the ${ORG.decade.challenge} community.`}
+  />
 
   <!-- Upcoming -->
   <section class="py-16 md:py-20" aria-labelledby="upcoming">
