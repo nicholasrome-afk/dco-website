@@ -28,6 +28,7 @@ Current nameservers: `ns-cloud-d1…d4.googledomains.com` (Squarespace Domains).
 | CNAME | `www`            | `ext-sq.squarespace.com`                             | Delete; replaced by the Worker custom domain |
 | TXT   | `dco-oo.org`     | `v=spf1 -all`                                        | **Keep** (says the domain sends no email)    |
 | TXT   | `_dmarc`         | `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s`     | **Keep** (rejects mail spoofing the domain)  |
+| TXT   | `_domainkey`     | `v=DKIM1; p=`                                        | **Keep** (empty DKIM key: no mail is signed) |
 | CNAME | `_domainconnect` | `_domainconnect.domains.squarespace.com`             | Drop (Squarespace setup helper only)         |
 | MX    | none             |                                                      | None exist; nothing to copy                  |
 
