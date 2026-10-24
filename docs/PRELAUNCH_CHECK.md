@@ -30,6 +30,7 @@ Current nameservers: `ns-cloud-d1…d4.googledomains.com` (Squarespace Domains).
 | TXT   | `_dmarc`         | `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s`     | **Keep** (rejects mail spoofing the domain)  |
 | TXT   | `_domainkey`     | `v=DKIM1; p=`                                        | **Keep** (empty DKIM key: no mail is signed) |
 | CNAME | `_domainconnect` | `_domainconnect.domains.squarespace.com`             | Drop (Squarespace setup helper only)         |
+| HTTPS | `dco-oo.org`     | `alpn="h2,http/1.1"` + hints to the Squarespace IPs  | Don't copy (Cloudflare creates its own)      |
 | MX    | none             |                                                      | None exist; nothing to copy                  |
 
 Public DNS only shows names that are asked for, so compare this list with the DNS panel at
