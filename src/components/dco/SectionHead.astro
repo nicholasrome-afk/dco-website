@@ -1,0 +1,45 @@
+---
+// Section heading: eyebrow with teal bar, Plus Jakarta Sans H2, optional intro and link.
+import { Icon } from 'astro-icon/components';
+
+export interface Props {
+  eyebrow: string;
+  title: string;
+  id?: string;
+  intro?: string;
+  link?: { text: string; href: string };
+  dark?: boolean;
+  class?: string;
+}
+
+const { eyebrow, title, id, intro, link, dark = false, class: className = '' } = Astro.props;
+---
+
+<div class:list={['flex flex-col gap-4 md:flex-row md:items-end md:justify-between', className]}>
+  <div class="max-w-3xl">
+    <p class:list={['eyebrow-bar', dark ? 'text-on-dark-muted before:bg-accent' : 'text-muted']}>{eyebrow}</p>
+    <h2
+      id={id}
+      class:list={[
+        'mt-3 scroll-mt-28 text-3xl font-bold tracking-tight md:text-4xl',
+        dark ? 'text-on-dark' : 'text-heading',
+      ]}
+    >
+      {title}
+    </h2>
+    {intro && <p class:list={['mt-4 text-lg', dark ? 'text-on-dark-muted' : 'text-muted']}>{intro}</p>}
+  </div>
+  {
+    link && (
+      <a
+        href={link.href}
+        class:list={[
+          'inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold underline-offset-4 hover:underline',
+          dark ? 'text-on-dark-link' : 'text-link',
+        ]}
+      >
+        {link.text} <Icon name="tabler:arrow-right" class="h-4 w-4" aria-hidden="true" />
+      </a>
+    )
+  }
+</div>

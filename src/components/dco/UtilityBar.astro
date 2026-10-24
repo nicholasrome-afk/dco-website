@@ -1,0 +1,29 @@
+---
+// Thin bar above the header (after Ocean Networks Canada's utility bar):
+// keeps the Ocean Decade link and newsletter signup one click away.
+import { Icon } from 'astro-icon/components';
+import { ORG } from '~/config/org';
+---
+
+<aside class="bg-abyss text-on-dark-muted" aria-label="Site information">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-3 py-2 text-xs lg:px-6">
+    <p class="eyebrow hidden text-[0.6875rem] md:block">
+      Hosted by <a class="text-on-dark hover:underline" href={ORG.host.url}>{ORG.host.name}</a>
+    </p>
+    <ul class="ml-auto flex items-center gap-5">
+      <li>
+        <a class="inline-flex items-center gap-1 text-on-dark hover:underline" href={ORG.decade.url}>
+          Ocean Decade website <Icon name="tabler:arrow-up-right" class="h-3.5 w-3.5" aria-hidden="true" />
+        </a>
+      </li>
+      <li>
+        <a
+          class="inline-flex items-center gap-1 rounded-[3px] bg-accent px-2.5 py-1 font-semibold text-abyss hover:bg-white"
+          href={ORG.newsletterUrl}
+        >
+          <Icon name="tabler:mail" class="h-3.5 w-3.5" aria-hidden="true" /> Newsletter
+        </a>
+      </li>
+    </ul>
+  </div>
+</aside>

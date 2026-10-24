@@ -1,0 +1,138 @@
+---
+// Event card (after MBARI): square date block, format pills, room and
+// co-organizer tags. `showDate={false}` hides the date block inside day tabs.
+// Times show their zone ("16:00–18:00 UTC"); visitors elsewhere also see their
+// own local time (filled in by the browser) and can download a calendar file.
+import { Icon } from 'astro-icon/components';
+import {
+  dayOfMonth,
+  monthShort,
+  weekday,
+  timeRangeWithZone,
+  eventInstants,
+  splitOrganizers,
+  fullDate,
+  type DcoEvent,
+} from '~/utils/events';
+import { getPermalink } from '~/utils/permalinks';
+import LocalTime from './LocalTime.astro';
+
+export interface Props {
+  event: DcoEvent;
+  showDate?: boolean;
+  headingLevel?: 'h3' | 'h4';
+}
+
+const { event, showDate = true, headingLevel: H = 'h3' } = Astro.props;
+const { title, date, formats, location, organizers, link, scheduleNote, summary, registerUrl, registerBy } = event.data;
+const { named, withPartners } = splitOrganizers(organizers);
+const time = timeRangeWithZone(event.data);
+const instants = eventInstants(event.data);
+const icsHref = getPermalink(`/events/${event.id}.ics`);
+// No calendar link once an event is over (as of the last build).
+const upcoming = instants ? instants.end.getTime() > Date.now() : false;
+---
+
+<article class="flex gap-4 rounded-[4px] border border-line bg-white p-5 md:gap-6 md:p-6">
+  {
+    showDate && (
+      <div class="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-[4px] bg-abyss text-on-dark">
+        <span class="eyebrow text-[0.625rem] text-accent">{weekday(date)}</span>
+        <span class="font-heading text-3xl leading-none font-extrabold">{dayOfMonth(date)}</span>
+        <span class="eyebrow text-[0.625rem] text-on-dark-muted">{monthShort(date)}</span>
+      </div>
+    )
+  }
+  <div class="min-w-0 flex-1">
+    {
+      formats.length > 0 && (
+        <ul class="mb-2 flex flex-wrap gap-1.5" aria-label="Format">
+          {formats.map((f) => (
+            <li class="eyebrow rounded-full bg-primary/10 px-2.5 py-1 text-[0.625rem] text-link">{f}</li>
+          ))}
+        </ul>
+      )
+    }
+    <H class="text-lg leading-snug font-bold text-heading">
+      {
+        link ? (
+          <a href={link} class="underline-offset-4 hover:text-link hover:underline">
+            {title}
+          </a>
+        ) : (
+          title
+        )
+      }
+    </H>
+    <dl class="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted">
+      {
+        !showDate && (
+          <div class="sr-only">
+            <dt>Date</dt>
+            <dd>{fullDate(date)}</dd>
+          </div>
+        )
+      }
+      {
+        time && (
+          <div class="flex items-center gap-1.5">
+            <dt>
+              <Icon name="tabler:clock" class="h-4 w-4" aria-hidden="true" />
+              <span class="sr-only">Time</span>
+            </dt>
+            <dd>
+              {time}
+              {instants && <LocalTime {...instants} zone={event.data.timezone} class="text-default" />}
+            </dd>
+          </div>
+        )
+      }
+      {
+        location && (
+          <div class="flex items-center gap-1.5">
+            <dt>
+              <Icon name="tabler:map-pin" class="h-4 w-4" aria-hidden="true" />
+              <span class="sr-only">Location</span>
+            </dt>
+            <dd>{location}</dd>
+          </div>
+        )
+      }
+    </dl>
+    {scheduleNote && <p class="mt-1.5 text-sm text-muted">{scheduleNote}</p>}
+    {summary && <p class="mt-3 text-sm text-default">{summary}</p>}
+    {
+      (named.length > 0 || withPartners) && (
+        <ul class="mt-3 flex flex-wrap gap-1.5" aria-label="Organizers">
+          {named.map((o) => (
+            <li class="rounded-[3px] border border-line bg-mist px-2 py-0.5 text-xs text-default">{o}</li>
+          ))}
+          {withPartners && <li class="px-1 py-0.5 text-xs text-muted">+ partners</li>}
+        </ul>
+      )
+    }
+    {
+      (registerUrl || upcoming) && (
+        <p class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          {registerUrl && (
+            <span>
+              <a href={registerUrl} class="font-semibold text-link underline-offset-4 hover:underline">
+                Register
+              </a>
+              {registerBy && <span class="text-muted"> by {fullDate(registerBy)}</span>}
+            </span>
+          )}
+          {upcoming && (
+            <a
+              href={icsHref}
+              download
+              class="inline-flex items-center gap-1 font-semibold text-link underline-offset-4 hover:underline"
+            >
+              <Icon name="tabler:calendar-plus" class="h-4 w-4" aria-hidden="true" /> Add to calendar
+            </a>
+          )}
+        </p>
+      )
+    }
+  </div>
+</article>

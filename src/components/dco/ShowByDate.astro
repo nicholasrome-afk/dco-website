@@ -1,0 +1,33 @@
+---
+// Shows its content only before `until` or from `from` (ISO instants). Decided at
+// build time and re-checked in the browser, so a deadline passing between
+// rebuilds still swaps the content for visitors.
+import { isBefore } from '~/config/blueprint';
+
+export interface Props {
+  until?: string;
+  from?: string;
+  class?: string;
+}
+
+const { until, from, class: className } = Astro.props;
+const visible = (!until || isBefore(until)) && (!from || !isBefore(from));
+---
+
+<div class={className} data-show-until={until} data-show-from={from} hidden={!visible}>
+  <slot />
+</div>
+
+<script>
+  function applyDateSwitches() {
+    const now = Date.now();
+    document.querySelectorAll<HTMLElement>('[data-show-until], [data-show-from]').forEach((el) => {
+      const { showUntil, showFrom } = el.dataset;
+      el.hidden = !(
+        (!showUntil || now < new Date(showUntil).getTime()) &&
+        (!showFrom || now >= new Date(showFrom).getTime())
+      );
+    });
+  }
+  document.addEventListener('astro:page-load', applyDateSwitches);
+</script>

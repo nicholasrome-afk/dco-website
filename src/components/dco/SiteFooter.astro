@@ -1,0 +1,122 @@
+---
+// Site footer: newsletter band → partner logo strip → dark footer with the
+// Secretariat contacts and quick links (after MBARI's footer).
+import { Icon } from 'astro-icon/components';
+import Image from '~/components/common/Image.astro';
+import { ORG, ORG_STATUS } from '~/config/org';
+import { footerData } from '~/navigation';
+
+import logoCol from '~/assets/images/site/logo-col.png';
+import logoDecade from '~/assets/images/site/logo-ocean-decade.png';
+import logoGoos from '~/assets/images/site/logo-goos.png';
+
+const logos = [
+  { label: 'Hosted by', src: logoCol, alt: 'Center for Ocean Leadership', href: ORG.host.url },
+  { label: 'Part of', src: logoDecade, alt: ORG.decade.name, href: ORG.decade.url },
+  { label: 'In collaboration with', src: logoGoos, alt: ORG.goos.name, href: ORG.goos.url },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <!-- Newsletter band -->
+  <section class="bg-primary text-white" aria-labelledby="newsletter-heading">
+    <div
+      class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 md:flex-row md:items-center md:justify-between lg:px-6"
+    >
+      <div>
+        <p class="eyebrow text-white">Quarterly newsletter</p>
+        <h2 id="newsletter-heading" class="mt-2 text-2xl font-bold md:text-3xl">Stay connected to Challenge 7</h2>
+        <p class="mt-2 max-w-xl text-white">
+          News, events and opportunities from across the ocean observing community, four times a year.
+        </p>
+      </div>
+      <a class="btn-dco-light shrink-0" href={ORG.newsletterUrl}>
+        <Icon name="tabler:mail" class="h-4 w-4" aria-hidden="true" /> Subscribe
+      </a>
+    </div>
+  </section>
+
+  <!-- Partner logo strip -->
+  <section class="border-b border-line bg-white" aria-label="Host and partners">
+    <ul class="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-10 sm:grid-cols-3 lg:px-6">
+      {
+        logos.map(({ label, src, alt, href }) => (
+          <li class="flex flex-col items-center gap-3 text-center">
+            <span class="eyebrow text-muted">{label}</span>
+            <a href={href} class="flex h-20 items-center">
+              <Image src={src} alt={alt} layout="none" width={240} class="max-h-20 w-auto object-contain" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Main footer -->
+  <div class="bg-abyss text-on-dark-muted">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-12 lg:px-6">
+      <div class="md:col-span-5">
+        <p class="font-heading text-2xl font-extrabold tracking-tight text-on-dark">
+          DCO<span class="text-accent">-</span>OO
+        </p>
+        <p class="mt-3 max-w-sm text-sm">{ORG_STATUS}</p>
+        <h2 class="eyebrow mt-8 text-on-dark">DCO-OO Secretariat</h2>
+        <ul class="mt-3 space-y-2 text-sm">
+          {
+            ORG.contacts.map(({ name, email }) => (
+              <li>
+                {name},{' '}
+                <a class="text-on-dark-link underline-offset-2 hover:underline" href={`mailto:${email}`}>
+                  {email}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <nav class="md:col-span-3" aria-label="Homepage sections">
+        <h2 class="eyebrow text-on-dark">On the homepage</h2>
+        <ul class="mt-3 space-y-2 text-sm">
+          {
+            footerData.homeSections.map(({ text, href }) => (
+              <li>
+                <a class="hover:text-on-dark hover:underline" href={href}>
+                  {text}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      {
+        footerData.sections.map(({ title, links }) => (
+          <nav class="md:col-span-2" aria-label={title}>
+            <h2 class="eyebrow text-on-dark">{title}</h2>
+            <ul class="mt-3 space-y-2 text-sm">
+              {links.map(({ text, href }) => (
+                <li>
+                  <a class="hover:text-on-dark hover:underline" href={href}>
+                    {text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
+    </div>
+
+    <div class="border-t border-white/10">
+      <div class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-5 text-xs sm:flex-row sm:justify-between lg:px-6">
+        <p>© {year} {ORG.name}</p>
+        <p>
+          Contributing to the <a class="hover:text-on-dark hover:underline" href={ORG.decade.url}>{ORG.decade.name}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

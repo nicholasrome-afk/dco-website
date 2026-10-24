@@ -1,0 +1,43 @@
+---
+// "(your time: 08:00–10:00 PST)" for visitors whose time zone differs from the
+// event's. Empty and hidden until the browser fills it in.
+export interface Props {
+  start: Date;
+  end: Date;
+  zone: string;
+  class?: string;
+}
+
+const { start, end, zone, class: className = '' } = Astro.props;
+---
+
+<span
+  class:list={['hidden', className]}
+  data-local-time
+  data-start={start.toISOString()}
+  data-end={end.toISOString()}
+  data-zone={zone}></span>
+
+<script>
+  function showLocalTimes() {
+    const local = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const time = (d: Date, timeZone: string) =>
+      new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d);
+    const day = (d: Date, timeZone: string) =>
+      new Intl.DateTimeFormat('en-GB', { timeZone, weekday: 'short', day: 'numeric', month: 'short' }).format(d);
+    document.querySelectorAll<HTMLElement>('[data-local-time]').forEach((el) => {
+      const start = new Date(el.dataset.start!);
+      const end = new Date(el.dataset.end!);
+      const zone = el.dataset.zone!;
+      if (time(start, local) === time(start, zone) && day(start, local) === day(start, zone)) return;
+      // The visitor's own locale names their zone the way they know it ("PST", "AEDT").
+      const tz = new Intl.DateTimeFormat(undefined, { timeZone: local, timeZoneName: 'short' })
+        .formatToParts(start)
+        .find((p) => p.type === 'timeZoneName')?.value;
+      const otherDay = day(start, local) !== day(start, zone) ? `${day(start, local)}, ` : '';
+      el.textContent = ` (your time: ${otherDay}${time(start, local)}–${time(end, local)} ${tz})`;
+      el.classList.remove('hidden');
+    });
+  }
+  document.addEventListener('astro:page-load', showLocalTimes);
+</script>

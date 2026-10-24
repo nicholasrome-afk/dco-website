@@ -1,0 +1,115 @@
+# Decade Implementing Partners and Decade Challenge 7 Programmes.
+# Names and links come from the old dco-oo.org homepage.
+# `scope` is a one-line tag shown on each card (wording approved by the Secretariat, Oct 2026).
+
+# --- Decade Implementing Partners ---------------------------------------------
+- id: eu4oceanobs
+  name: EU4OceanObs
+  type: partner
+  scope: EU action for international ocean observation
+  url: https://www.eu4oceanobs.eu/eu_ocean_observing/
+
+- id: eurogoos
+  name: European Global Ocean Observing System
+  acronym: EuroGOOS
+  type: partner
+  scope: Operational oceanography across Europe
+  url: https://eurogoos.eu/
+
+- id: emodnet
+  name: European Marine Observation and Data Network
+  acronym: EMODnet
+  type: partner
+  scope: Open European marine data
+  url: https://emodnet.ec.europa.eu/en
+
+- id: geo-blue-planet
+  name: GEO Blue Planet
+  type: partner
+  scope: Ocean and coastal information for society
+  url: https://geoblueplanet.org/
+
+- id: onc
+  name: Ocean Networks Canada
+  acronym: ONC
+  type: partner
+  scope: Cabled ocean observatories
+  url: https://www.oceannetworks.ca/
+
+- id: pogo
+  name: Partnership for Observation of the Global Ocean
+  acronym: POGO
+  type: partner
+  scope: Oceanographic institutions working together
+  url: https://pogo-ocean.org/
+
+# --- Decade Challenge 7 Programmes ------------------------------------------
+- id: challenger-150
+  name: Challenger 150
+  type: programme
+  scope: Mapping life in the deep ocean
+  url: https://challenger150.world/
+
+- id: coastpredict
+  name: CoastPredict
+  type: programme
+  scope: Coastal ocean observing and forecasting
+  url: https://www.coastpredict.org/
+
+- id: doos
+  name: Deep Ocean Observing Strategy
+  acronym: DOOS
+  type: programme
+  scope: Sustained deep-ocean observing
+  url: https://www.deepoceanobserving.org/
+
+- id: marine-life-2030
+  name: Marine Life 2030
+  type: programme
+  scope: Observing and forecasting marine life
+  url: https://marinelife2030.org/
+
+- id: obon
+  name: Ocean Biomolecular Observing Network
+  acronym: OBON
+  type: programme
+  scope: Biomolecular and eDNA observing
+  url: https://obon-ocean.org/
+
+- id: od-mae
+  name: Ocean Decade Research Programme on the Maritime Acoustic Environment
+  acronym: OD-MAE
+  type: programme
+  scope: Ocean sound and the acoustic environment
+  url: https://mae.dosits.org/
+
+- id: co-design
+  name: Ocean Observing Co-Design
+  type: programme
+  scope: Co-designing observing systems with users
+  url: https://goosocean.org/what-we-do/goos-at-the-heart-of-the-ocean-decade/ocean-observing-co-design/
+
+- id: oasis
+  name: Observing Air-Sea Interactions Strategy
+  acronym: OASIS
+  type: programme
+  scope: Air-sea interaction observing
+  url: https://airseaobs.org/
+
+- id: observing-together
+  name: Observing Together
+  type: programme
+  scope: Ocean data that serves local communities
+  url: https://goosocean.org/what-we-do/goos-at-the-heart-of-the-ocean-decade/observing-together/
+
+- id: onedeepocean
+  name: OneDeepOcean
+  type: programme
+  scope: Ocean Decade programme
+  url: https://www.onedeepocean.org/
+
+- id: seabed-2030
+  name: Seabed 2030
+  type: programme
+  scope: Mapping the entire ocean floor
+  url: https://seabed2030.org/

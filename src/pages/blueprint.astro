@@ -1,0 +1,380 @@
+---
+import { Icon } from 'astro-icon/components';
+
+import Layout from '~/layouts/PageLayout.astro';
+import PageHeader from '~/components/dco/PageHeader.astro';
+import SectionHead from '~/components/dco/SectionHead.astro';
+import LocalTime from '~/components/dco/LocalTime.astro';
+import ShowByDate from '~/components/dco/ShowByDate.astro';
+
+import { ORG } from '~/config/org';
+import { BLUEPRINT } from '~/config/blueprint';
+import { getPermalink } from '~/utils/permalinks';
+import { getEvents, eventInstants, timeRangeWithZone, weekdayLong, fullDate } from '~/utils/events';
+
+const metadata = {
+  title: 'Solutions Blueprint',
+  description: `Help shape the ${BLUEPRINT.fullName}: comment on the draft by ${BLUEPRINT.commentDeadline} and join an online workshop on 18 or 19 November.`,
+};
+
+// Workshop sessions come from the events collection, so the times match the event cards.
+const sessions = (await getEvents())
+  .filter((e) => (BLUEPRINT.workshopEventIds as readonly string[]).includes(e.id))
+  .map((e, i) => ({ event: e, n: i + 1, instants: eventInstants(e.data) }));
+
+// --- Content (adapted from the PICES 2026 talking points) -------------------
+
+const goals = [
+  { word: 'Connect', text: 'Link observations, data and predictions to what users and decision-makers need.' },
+  { word: 'Prioritize', text: 'Agree shared priorities and practical actions for the rest of the Decade.' },
+  { word: 'Sustain', text: 'Build partnerships, investment and capabilities that last beyond 2030.' },
+];
+
+const coLeads = [
+  { name: ORG.name, href: getPermalink('/about') },
+  { name: 'Decade Collaborative Centre for Ocean Prediction', href: 'https://www.unoceanprediction.org/' },
+  { name: 'Decade Coordination Office for Ocean Data Sharing', href: 'https://oceandatasharing-dco.org/' },
+];
+
+const draftSections = [
+  'Strategic relevance and policy context',
+  'Current impact',
+  'Needs and priorities',
+  'Proposed pathways',
+];
+
+const pathways = [
+  { icon: 'tabler:antenna-bars-5', title: 'Sustaining ocean observing and forecasting' },
+  { icon: 'tabler:topology-star-3', title: 'Connecting ocean data systems' },
+  { icon: 'tabler:rocket', title: 'Moving innovation into operations' },
+  { icon: 'tabler:chart-dots-3', title: 'Developing useful products and services' },
+  { icon: 'tabler:school', title: 'Building capacity and skills' },
+  { icon: 'tabler:coins', title: 'Securing long-term funding and support' },
+];
+
+const frameworks = [
+  'Global Biodiversity Framework',
+  'BBNJ Agreement',
+  'UNFCCC adaptation and Early Warnings for All',
+  'WMO and GCOS requirements',
+  'Ramsar Strategic Plan',
+];
+
+const timeline = [
+  { when: 'December 2026', text: 'Complete the Blueprint draft for the Ocean Decade Coordination Unit.' },
+  { when: 'Early 2027', text: 'A broader online consultation is expected.' },
+  {
+    when: '7–9 April 2027',
+    text: '2027 Ocean Decade Conference, Rio de Janeiro: present shared priorities, engage partners and seek commitments.',
+  },
+  { when: '2027–2030', text: 'Put the priorities into action and track progress.' },
+  {
+    when: 'Beyond the Decade',
+    text: "Relevant outcomes feed into OceanObs'29. The Decade ends in 2030, and the aim is sustained ocean information and services toward 2040.",
+  },
+];
+
+const linkClass = 'font-semibold text-link underline-offset-4 hover:underline';
+---
+
+<Layout metadata={metadata}>
+  <PageHeader
+    eyebrow="Road to Rio 2027"
+    title={BLUEPRINT.title}
+    intro="We invite you to contribute to the development of the Ocean Decade Solution Blueprint on Ocean Data, Information, and Services. The Blueprint is intended to connect work on ocean observing, data sharing, and ocean prediction across the broader ocean information value chain."
+  />
+
+  <!-- How to contribute -->
+  <section class="py-16 md:py-24" aria-labelledby="contribute">
+    <div class="mx-auto max-w-7xl px-4 lg:px-6">
+      <SectionHead id="contribute" eyebrow="How to contribute" title="Two ways to shape the Blueprint" />
+
+      <div class="mt-10 grid gap-6 lg:grid-cols-2">
+        <!-- Comment on the draft -->
+        <article class="flex flex-col rounded-[4px] border border-line p-6 md:p-8" aria-labelledby="comment">
+          <Icon name="tabler:file-text" class="h-8 w-8 text-link" aria-hidden="true" />
+          <ShowByDate until={BLUEPRINT.commentsCloseAt} class="flex flex-1 flex-col">
+            <p class="eyebrow mt-4 text-link">Comments due {BLUEPRINT.commentDeadline}</p>
+            <h3 id="comment" class="mt-2 text-2xl font-bold text-heading">Review the draft Blueprint</h3>
+            <div class="mt-4 space-y-4 text-default">
+              <p>
+                We welcome written feedback on the draft document of the Ocean Information and Services Solution
+                Blueprint here. We have developed a draft of sections 1-3 to provide an initial assessment of current
+                impact, identify key gaps and priorities, and propose Solution Pathways.
+              </p>
+              <p>When reviewing the draft, we welcome the following feedback:</p>
+              <ul class="list-disc space-y-3 pl-5 marker:text-primary">
+                <li>
+                  <strong class="text-heading">Factual errors or inaccuracies:</strong> statistics, dates, names, or descriptions
+                  of initiatives that are incorrect or out of date. Please include a source where possible.
+                </li>
+                <li>
+                  <strong class="text-heading">Significant omissions or gaps:</strong> needs, regions, user groups, sectors,
+                  or knowledge holders, including Indigenous and local knowledge, that are missing.
+                </li>
+                <li>
+                  <strong class="text-heading">Specific suggested revisions to pathways or proposed actions:</strong> including
+                  actions your organisation could lead or support, partners, resources, or timelines.
+                </li>
+                <li>
+                  <strong class="text-heading">Connections to existing initiatives or other Blueprints:</strong> Decade Actions,
+                  programmes, or regional and thematic Blueprints this work should link to.
+                </li>
+              </ul>
+              <p>You can provide feedback by commenting directly on the document.</p>
+            </div>
+            <div class="mt-auto pt-6">
+              <a href={BLUEPRINT.draftUrl} class="btn-dco-primary">
+                Open the draft (Google Doc) <Icon name="tabler:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
+              </a>
+              <p class="mt-3 text-sm text-muted">Google may ask you to sign in before you can add comments.</p>
+            </div>
+          </ShowByDate>
+          <ShowByDate from={BLUEPRINT.commentsCloseAt}>
+            <p class="eyebrow mt-4 text-muted">Comment period closed</p>
+            <h3 class="mt-2 text-2xl font-bold text-heading">Thank you for your comments</h3>
+            <p class="mt-4 text-default">
+              Written comments on the draft closed on {BLUEPRINT.commentDeadline}. A broader online consultation is
+              expected in early 2027.
+            </p>
+          </ShowByDate>
+        </article>
+
+        <!-- Online workshops -->
+        <article class="flex flex-col rounded-[4px] bg-abyss p-6 text-on-dark md:p-8" aria-labelledby="workshops">
+          <Icon name="tabler:users-group" class="h-8 w-8 text-accent" aria-hidden="true" />
+          <ShowByDate until={BLUEPRINT.workshopsEndAt} class="flex flex-1 flex-col">
+            <p class="eyebrow mt-4 text-accent">Online · 18 and 19 November 2026</p>
+            <h3 id="workshops" class="mt-2 text-2xl font-bold text-white">Join an online workshop</h3>
+            <div class="mt-4 space-y-4 text-on-dark-muted">
+              <p>
+                As part of this process, we will hold an online workshop bringing together different Decade stakeholders
+                to review and co-develop the draft Blueprint, with particular focus on Sections 4–6: understanding and
+                overcoming barriers, setting milestones, and the call for action.
+              </p>
+              <p>Two identical workshop sessions will be offered to accommodate different time zones.</p>
+            </div>
+            <ul class="mt-6 space-y-4">
+              {
+                sessions.map(({ event, n, instants }) => (
+                  <li class="rounded-[4px] bg-deep p-5">
+                    <p class="eyebrow text-on-dark-muted">Session {n}</p>
+                    <p class="mt-1 font-heading text-lg font-bold text-white">
+                      {weekdayLong(event.data.date)} {fullDate(event.data.date)}
+                    </p>
+                    <p class="mt-1 text-on-dark">
+                      {timeRangeWithZone(event.data)}
+                      {instants && <LocalTime {...instants} zone={event.data.timezone} class="text-on-dark-muted" />}
+                    </p>
+                    <p class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+                      {event.data.registerUrl && (
+                        <a href={event.data.registerUrl} class="btn-dco-accent">
+                          Register (Zoom) <Icon name="tabler:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
+                        </a>
+                      )}
+                      {instants && (
+                        <a
+                          href={getPermalink(`/events/${event.id}.ics`)}
+                          download
+                          class="inline-flex items-center gap-1 text-sm font-semibold text-accent underline-offset-4 hover:underline"
+                        >
+                          <Icon name="tabler:calendar-plus" class="h-4 w-4" aria-hidden="true" /> Add to calendar
+                        </a>
+                      )}
+                    </p>
+                  </li>
+                ))
+              }
+            </ul>
+            <p class="mt-6 text-on-dark-muted">
+              Feedback on the Blueprint is welcome even if you are unable to attend the workshop.
+            </p>
+          </ShowByDate>
+          <ShowByDate from={BLUEPRINT.workshopsEndAt}>
+            <p class="eyebrow mt-4 text-on-dark-muted">Workshops held</p>
+            <h3 class="mt-2 text-2xl font-bold text-white">Workshops held 18–19 November 2026</h3>
+            <p class="mt-4 text-on-dark-muted">
+              Thank you to everyone who joined the two online sessions to review and co-develop Sections 4–6 of the
+              draft Blueprint.
+            </p>
+          </ShowByDate>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Goals -->
+  <section class="bg-abyss py-16 md:py-20" aria-labelledby="aims">
+    <div class="mx-auto max-w-7xl px-4 lg:px-6">
+      <SectionHead
+        id="aims"
+        dark
+        eyebrow="What it aims to do"
+        title="One of eight Ocean Decade Solutions for Rio 2027"
+        intro="The 2027 Ocean Decade Conference is built around eight Ocean Decade Solutions, each with its own Blueprint, alongside eight regional Blueprints. This one covers how we deliver data, observations and services for ocean management, which the other Solutions depend on."
+      />
+    </div>
+    <ul class="mx-auto mt-10 grid max-w-7xl border-t border-white/10 md:grid-cols-3 lg:px-6">
+      {
+        goals.map(({ word, text }, i) => (
+          <li
+            class:list={[
+              'px-4 py-8 md:px-8 md:py-10',
+              i > 0 && 'border-t border-white/10 md:border-t-0 md:border-l',
+              i === 0 && 'md:pl-0',
+            ]}
+          >
+            <p class="font-heading text-2xl font-extrabold tracking-[0.08em] text-white uppercase md:text-3xl">
+              {word}
+            </p>
+            <p class="mt-2 text-on-dark-muted">{text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Who is building it -->
+  <section class="py-16 md:py-24" aria-labelledby="who">
+    <div class="mx-auto max-w-7xl px-4 lg:px-6">
+      <SectionHead
+        id="who"
+        eyebrow="Who is building it"
+        title="A joint effort across observing, data and prediction"
+        intro="The Blueprint builds on the Vision 2030 white papers, existing programmes and community input."
+      />
+      <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          coLeads.map(({ name, href }) => (
+            <li class="flex flex-col rounded-[4px] border border-line p-6">
+              <p class="eyebrow text-[0.6875rem] text-muted">Co-lead</p>
+              <a
+                href={href}
+                class="mt-2 font-heading text-lg leading-snug font-bold text-heading underline-offset-4 hover:text-link hover:underline"
+              >
+                {name}
+              </a>
+            </li>
+          ))
+        }
+        <li class="flex flex-col rounded-[4px] bg-mist p-6">
+          <p class="eyebrow text-[0.6875rem] text-muted">Working with</p>
+          <a
+            href={ORG.decade.url}
+            class="mt-2 font-heading text-lg leading-snug font-bold text-heading underline-offset-4 hover:text-link hover:underline"
+          >
+            Ocean Decade Coordination Unit
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- What's in the draft -->
+  <section class="bg-mist py-16 md:py-24" aria-labelledby="draft">
+    <div class="mx-auto grid max-w-7xl gap-12 px-4 lg:grid-cols-12 lg:px-6">
+      <div class="lg:col-span-4">
+        <p class="eyebrow-bar text-muted">What's in the draft</p>
+        <h2 id="draft" class="mt-3 text-3xl font-bold tracking-tight text-heading md:text-4xl">
+          Six proposed pathways
+        </h2>
+        <p class="mt-6 text-lg text-default">The initial draft covers:</p>
+        <ol class="mt-3 list-decimal space-y-1.5 pl-5 text-default marker:text-muted">
+          {draftSections.map((s) => <li>{s}</li>)}
+        </ol>
+        <p class="mt-6 text-muted">
+          The November workshops will develop the rest: barriers, milestones and a call for action.
+        </p>
+      </div>
+      <ul class="grid gap-4 sm:grid-cols-2 lg:col-span-8">
+        {
+          pathways.map(({ icon, title }, i) => (
+            <li class="flex items-start gap-4 rounded-[4px] border border-line bg-white p-6">
+              <Icon name={icon} class="h-8 w-8 shrink-0 text-link" aria-hidden="true" />
+              <p>
+                <span class="eyebrow block text-[0.6875rem] text-muted">Pathway {i + 1}</span>
+                <span class="mt-1 block text-lg leading-snug font-bold text-heading">{title}</span>
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Why it matters -->
+  <section class="py-16 md:py-24" aria-labelledby="why">
+    <div class="mx-auto grid max-w-7xl gap-12 px-4 lg:grid-cols-12 lg:px-6">
+      <div class="lg:col-span-7">
+        <p class="eyebrow-bar text-muted">Why it matters</p>
+        <h2 id="why" class="mt-3 text-3xl font-bold tracking-tight text-heading md:text-4xl">
+          Commitments already made depend on ocean information
+        </h2>
+        <div class="mt-6 space-y-5 text-lg text-default">
+          <p>
+            Governments have committed to warn people of hazards, protect biodiversity, adapt to climate change, keep
+            ocean industries safe and build scientific capacity. Many cannot yet generate or use the ocean information
+            those commitments require.
+          </p>
+          <p class="text-muted">The draft groups the gaps into foundations, connections, use and sustainability.</p>
+        </div>
+      </div>
+      <aside class="lg:col-span-5" aria-labelledby="frameworks">
+        <div class="rounded-[4px] bg-mist p-6 md:p-8">
+          <h3 id="frameworks" class="eyebrow text-muted">The pathways support frameworks such as</h3>
+          <ul class="mt-5 space-y-3">
+            {
+              frameworks.map((f) => (
+                <li class="flex gap-3 text-default">
+                  <Icon name="tabler:check" class="mt-0.5 h-5 w-5 shrink-0 text-link" aria-hidden="true" />
+                  {f}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Road to Rio -->
+  <section class="bg-mist py-16 md:py-24" aria-labelledby="road">
+    <div class="mx-auto max-w-7xl px-4 lg:px-6">
+      <SectionHead id="road" eyebrow="Timeline" title="Road to Rio and beyond" />
+      <ol class="mt-10 grid gap-6 md:grid-cols-5">
+        {
+          timeline.map(({ when, text }) => (
+            <li class="border-t-2 border-primary pt-4">
+              <p class="font-heading text-lg font-bold text-heading">{when}</p>
+              <p class="mt-2 text-muted">{text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- Questions -->
+  <section class="py-16 md:py-24" aria-labelledby="questions">
+    <div class="mx-auto max-w-7xl px-4 lg:px-6">
+      <SectionHead id="questions" eyebrow="Questions?" title="Get in touch" />
+      <div class="mt-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <ul class="flex flex-wrap gap-x-10 gap-y-4">
+          {
+            ORG.contacts.map(({ name, email }) => (
+              <li>
+                <p class="font-semibold text-heading">{name}</p>
+                <a href={`mailto:${email}`} class={linkClass}>
+                  {email}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <a href={ORG.newsletterUrl} class="btn-dco-primary self-start md:self-auto">
+          <Icon name="tabler:mail" class="h-4 w-4" aria-hidden="true" /> Subscribe to the {ORG.shortName} newsletter
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -24,6 +24,12 @@ export interface Props {
 }
 
 const { metadata = {} } = Astro.props;
+
+// Cloudflare Workers Builds sets WORKERS_CI_BRANCH. Preview builds (any branch
+// other than main) must not be indexed by search engines.
+const branch = process.env.WORKERS_CI_BRANCH;
+const isPreviewBuild = Boolean(branch) && branch !== 'main';
+const pageMetadata = isPreviewBuild ? { ...metadata, robots: { index: false, follow: false } } : metadata;
 const { language, textDirection } = I18N;
 ---
 
@@ -33,13 +39,12 @@ const { language, textDirection } = I18N;
     <CommonMeta />
     <Favicons />
     <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-jakarta" preload />
     <CustomStyles />
     <ApplyColorMode />
-    <Metadata {...metadata} />
+    <Metadata {...pageMetadata} />
     <SiteVerification />
     <Analytics />
-
-    <link rel="preconnect" href="https://images.unsplash.com" />
 
     <!-- Comment the line below to disable View Transitions -->
     <ClientRouter fallback="swap" />

@@ -12,6 +12,7 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "map": "node scripts/render-network-map.mjs",
     "astro": "astro",
     "check": "npm run check:astro && npm run check:eslint && npm run check:prettier",
     "check:astro": "astro check",
