@@ -1,0 +1,98 @@
+# Monthly refresh of the homepage OceanOPS map (`npm run map`).
+#
+# On the 1st of each month this fetches the latest platform positions from
+# OceanOPS, redraws the hero map and its caption numbers, and opens a pull
+# request. Nothing goes live until someone reviews the Cloudflare preview and
+# merges the pull request. It can also be run by hand from the Actions tab.
+#
+# Needs one repository setting: Settings → Actions → General → "Allow GitHub
+# Actions to create and approve pull requests".
+
+name: Refresh OceanOPS map
+
+on:
+  schedule:
+    - cron: '0 6 1 * *' # 06:00 UTC on the 1st of every month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: refresh-map
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh map
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Render the map from OceanOPS
+        run: npm run map
+
+      - name: Sanity-check the new numbers
+        # A partial OceanOPS response would draw a near-empty map; stop instead.
+        run: |
+          total=$(node -p "require('./src/data/network-map.json').total")
+          echo "Platforms in the new map: $total"
+          if [ "$total" -lt 3000 ]; then
+            echo "::error::Only $total platforms returned (usually 8,000+). Not opening a pull request."
+            exit 1
+          fi
+
+      - name: Open a pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- src/assets/images/site/hero-network-map.jpg src/data/network-map.json; then
+            echo "Map unchanged; nothing to do."
+            exit 0
+          fi
+
+          retrieved=$(node -p "require('./src/data/network-map.json').retrieved")
+          total=$(node -p "require('./src/data/network-map.json').total.toLocaleString('en-GB')")
+          networks=$(node -p "require('./src/data/network-map.json').networks.filter(n => n.name !== 'Other').map(n => '- ' + n.name + ': ' + n.count.toLocaleString('en-GB')).join('\n')")
+          branch="map-refresh-${retrieved}"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git add src/assets/images/site/hero-network-map.jpg src/data/network-map.json
+          git commit -m "Refresh OceanOPS map (${retrieved})"
+          git push --force origin "$branch"
+
+          body=$(printf '%s\n' \
+            "Monthly refresh of the homepage map from OceanOPS (WMO-IOC)." \
+            "" \
+            "**${total}** platforms reported a position in the 30 days to ${retrieved}:" \
+            "" \
+            "${networks}" \
+            "" \
+            "To publish: open the Cloudflare preview from the checks below, look at the homepage map and numbers, then merge." \
+            "If this pull request is still open next month, close it; the next refresh replaces it.")
+
+          # A second run on the same day updates the existing pull request.
+          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
+            gh pr edit "$branch" --body "$body"
+          else
+            gh pr create --base main --head "$branch" \
+              --title "Refresh OceanOPS map (${retrieved})" \
+              --body "$body"
+          fi

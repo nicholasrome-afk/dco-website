@@ -11,7 +11,7 @@ metadata:
   title:
     default: Decade Coordination Office for Ocean Observing (DCO-OO)
     template: '%s — DCO-OO'
-  description: 'The Decade Coordination Office for Ocean Observing connects the Decade Actions addressing Ocean Decade Challenge 7 to build a sustainable ocean observing system across every ocean basin.'
+  description: 'The Decade Coordination Office for Ocean Observing works with GOOS and partners across Ocean Decade Challenge 7 to build a sustained ocean observing system, from coastlines to the deep ocean.'
   robots:
     index: true
     follow: true

@@ -23,6 +23,7 @@ npm run check    # types, lint, formatting
 | News posts                                         | `src/data/post/*.md`                                             |
 | Photos and their credits                           | `src/config/images.ts` (see `docs/IMAGERY_PLAN.md`)              |
 | Homepage map from OceanOPS                         | `npm run map` (writes the image and `src/data/network-map.json`) |
+| Monthly map refresh (opens a pull request)         | `.github/workflows/refresh-map.yml`                              |
 | Design rules (colors, fonts, components)           | `CLAUDE.md`                                                      |
 | Redirects from old URLs                            | `public/_redirects`                                              |
 
