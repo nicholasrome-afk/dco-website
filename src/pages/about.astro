@@ -12,7 +12,7 @@ import { getPermalink } from '~/utils/permalinks';
 
 const metadata = {
   title: 'About',
-  description: `${ORG_STATUS} We connect the Decade Actions addressing ${ORG.decade.challenge}.`,
+  description: `${ORG_STATUS} We coordinate ocean observing across ${ORG.decade.challenge}, working with ${ORG.goos.shortName} and partners.`,
 };
 
 const label = (n: { data: { acronym?: string; name: string } }) => n.data.acronym ?? n.data.name;
@@ -105,7 +105,7 @@ const glance = [
         id="network"
         eyebrow="Our network"
         title="Partners and programmes"
-        intro={`${groups[0].items.length} Decade Implementing Partners and ${groups[1].items.length} Decade Challenge 7 Programmes are building ocean observing capacity across every ocean basin.`}
+        intro={`${groups[0].items.length} Decade Implementing Partners and ${groups[1].items.length} Decade Challenge 7 Programmes are building ocean observing capacity around the world, from coastlines to the deep ocean.`}
       />
       {
         groups.map((g) => (
