@@ -14,6 +14,7 @@ export const ORG = {
     shortName: 'Ocean Decade',
     url: 'https://oceandecade.org/',
     challenge: 'Ocean Decade Challenge 7',
+    challengesUrl: 'https://oceandecade.org/challenges/',
   },
   goos: {
     name: 'Global Ocean Observing System',
