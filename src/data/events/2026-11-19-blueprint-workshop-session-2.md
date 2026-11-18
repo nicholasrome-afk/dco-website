@@ -9,6 +9,6 @@ formats: ['Workshop']
 location: 'Online (Zoom)'
 organizers: ['DCO-OO', 'DCO - Ocean Data Sharing', 'DCC - Ocean Prediction']
 link: /blueprint
-registerUrl: https://ucar-edu.zoom.us/meeting/register/PqJhlDp6SbyRFhychflpBw
+joinUrl: https://us06web.zoom.us/j/88185059351?pwd=6Fkf2RSupuvTx7XnzNSbxscMlKmb5v.1
 summary: 'An online workshop bringing together Decade stakeholders to review and co-develop the draft Blueprint, with a focus on Sections 4–6: understanding and overcoming barriers, setting milestones, and the call for action.'
 ---

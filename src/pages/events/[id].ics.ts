@@ -46,12 +46,16 @@ function fold(line: string) {
 
 export const GET: APIRoute = ({ props, site }) => {
   const event = props.event as DcoEvent;
-  const { title, summary, location, conference, link, registerUrl } = event.data;
+  const { title, summary, location, conference, link, registerUrl, joinUrl } = event.data;
   const { start, end } = eventInstants(event.data)!;
   const siteUrl = (site ?? new URL('https://www.dco-oo.org')).toString();
   const url = absoluteLink(link, siteUrl) ?? absoluteLink(getPermalink('/events'), siteUrl)!;
 
-  const description = [summary, registerUrl && `Register: ${registerUrl}`, `Details: ${url}`]
+  const description = [
+    summary,
+    joinUrl ? `Join on Zoom: ${joinUrl}` : registerUrl && `Register: ${registerUrl}`,
+    `Details: ${url}`,
+  ]
     .filter(Boolean)
     .join('\n\n');
 
