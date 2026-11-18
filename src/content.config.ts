@@ -105,6 +105,8 @@ const eventCollection = defineCollection({
     /** Event page: a full URL, or a page on this site such as "/blueprint". */
     link: z.union([z.url(), z.string().regex(/^\//, 'Use a full URL or a site path starting with /')]).optional(),
     registerUrl: z.url().optional(),
+    /** Direct link to join an online meeting, shown instead of Register. */
+    joinUrl: z.url().optional(),
     registerBy: z.coerce.date().optional(),
     summary: z.string().optional(),
     featured: z.boolean().default(false),

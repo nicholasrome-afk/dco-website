@@ -167,7 +167,12 @@ const linkClass = 'font-semibold text-link underline-offset-4 hover:underline';
                       {instants && <LocalTime {...instants} zone={event.data.timezone} class="text-on-dark-muted" />}
                     </p>
                     <p class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-                      {event.data.registerUrl && (
+                      {event.data.joinUrl && (
+                        <a href={event.data.joinUrl} class="btn-dco-accent">
+                          Join on Zoom <Icon name="tabler:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
+                        </a>
+                      )}
+                      {!event.data.joinUrl && event.data.registerUrl && (
                         <a href={event.data.registerUrl} class="btn-dco-accent">
                           Register (Zoom) <Icon name="tabler:arrow-up-right" class="h-4 w-4" aria-hidden="true" />
                         </a>

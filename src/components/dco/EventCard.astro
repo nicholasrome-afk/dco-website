@@ -24,7 +24,8 @@ export interface Props {
 }
 
 const { event, showDate = true, headingLevel: H = 'h3' } = Astro.props;
-const { title, date, formats, location, organizers, link, scheduleNote, summary, registerUrl, registerBy } = event.data;
+const { title, date, formats, location, organizers, link, scheduleNote, summary, registerUrl, registerBy, joinUrl } =
+  event.data;
 const { named, withPartners } = splitOrganizers(organizers);
 const time = timeRangeWithZone(event.data);
 const instants = eventInstants(event.data);
@@ -112,9 +113,14 @@ const upcoming = instants ? instants.end.getTime() > Date.now() : false;
       )
     }
     {
-      (registerUrl || upcoming) && (
+      (joinUrl || registerUrl || upcoming) && (
         <p class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-          {registerUrl && (
+          {joinUrl && (
+            <a href={joinUrl} class="font-semibold text-link underline-offset-4 hover:underline">
+              Join on Zoom
+            </a>
+          )}
+          {!joinUrl && registerUrl && (
             <span>
               <a href={registerUrl} class="font-semibold text-link underline-offset-4 hover:underline">
                 Register
