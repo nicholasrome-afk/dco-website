@@ -3,42 +3,42 @@
   "window": "Platforms reporting a position in the 30 days before retrieval",
   "sourceUrl": "https://www.ocean-ops.org/board",
   "land": "Natural Earth (public domain)",
-  "retrieved": "2026-10-17",
-  "total": 8561,
+  "retrieved": "2026-11-18",
+  "total": 8454,
   "networks": [
     {
       "name": "Argo profiling floats",
-      "count": 4801,
+      "count": 4429,
       "color": "#00A896"
     },
     {
       "name": "Drifting and moored buoys (DBCP)",
-      "count": 1976,
+      "count": 1954,
       "color": "#7FE0D3"
     },
     {
       "name": "Ships (SOT)",
-      "count": 1517,
+      "count": 1531,
       "color": "#E8EEF3"
     },
     {
-      "name": "Fishing vessels (FVON)",
-      "count": 195,
+      "name": "Other",
+      "count": 340,
       "color": "#3CC7B4"
     },
     {
-      "name": "Gliders (OceanGliders)",
-      "count": 37,
+      "name": "Fishing vessels (FVON)",
+      "count": 110,
       "color": "#AFC0D2"
     },
     {
-      "name": "Other",
-      "count": 25,
+      "name": "Animal-borne sensors (AniBOS)",
+      "count": 62,
       "color": "#4FB3BF"
     },
     {
-      "name": "Animal-borne sensors (AniBOS)",
-      "count": 9,
+      "name": "Gliders (OceanGliders)",
+      "count": 27,
       "color": "#C9F2EC"
     },
     {
